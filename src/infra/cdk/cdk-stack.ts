@@ -30,7 +30,7 @@ type AppConfig = {
   authorizer: Array<{
     name: string;
     type: string;
-    function: any;
+    authFunction: any;
     authFunctionName?: string;
     userPool?: string;
     tokenSource?: string;
@@ -162,7 +162,7 @@ export class CdkStack extends cdk.Stack {
   }
 
   private createCustomAuthorizer(config: AppConfig, authConfig: AppConfig['authorizer'][0]): AuthorizerInfo {
-    const authFunction = this.createLambdaFunction(config, authConfig.function);
+    const authFunction = this.createLambdaFunction(config, authConfig.authFunction);
     const authorizer = new apigateway.TokenAuthorizer(this, `TokenAuthorizer-${authConfig.name}`, {
       handler: authFunction,
       identitySource: 'method.request.header.Authorization',
@@ -190,7 +190,7 @@ export class CdkStack extends cdk.Stack {
 
   private createWebsocketAuthorizer(config: AppConfig, authConfig: AppConfig['authorizer'][0]): cdk.aws_apigatewayv2_authorizers.WebSocketLambdaAuthorizer {
     if (authConfig.name === 'custom-auth') {
-      const authFunction = this.createLambdaFunction(config, authConfig.function);
+      const authFunction = this.createLambdaFunction(config, authConfig.authFunction);
       const authorizer = new agwa.WebSocketLambdaAuthorizer(
         "Authorizer",
         authFunction,

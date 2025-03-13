@@ -2,7 +2,7 @@
     "appName": "CDK lambda",
     "version": "1.0.0",
     "region": "ap-south-1",
-    "stage": "local",
+    "stage": "dev",
     "provider": "aws",
     "envFile": {
         "local": "../environment/.local.env",

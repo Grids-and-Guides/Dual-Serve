@@ -14,5 +14,5 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
   },
-  "exclude": ["node_modules", "**/*.test.ts", "cdk.out", "bin/**", "builder.ts", "deploy.ts"]
+  "exclude": ["node_modules", "**/*.test.ts", "cdk.out", "bin/**", "builder.ts", "deploy.ts", "app.ts"]
 }

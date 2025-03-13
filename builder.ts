@@ -1,13 +1,13 @@
 import esbuild from 'esbuild';
-import appConfig from './app-config.json';
+import { appStack } from './deploy'
 
 type Functions = {
     srcFile: string;
     output: string;
 };
 
-const handlers = appConfig.functions;
-const authHandlers = appConfig.authorizer;
+const handlers = appStack.functions;
+const authHandlers = appStack.authorizer;
 
 const commonBuildOptions: esbuild.BuildOptions = {
   bundle: true,
@@ -22,8 +22,8 @@ const commonBuildOptions: esbuild.BuildOptions = {
 const buildAuthFunctions = async (): Promise<void> => {
   try {
     for (let item of authHandlers) {
-      const srcFile = item.function.srcFile;
-      const output = item.function.output;
+      const srcFile = item.authFunction.srcFile;
+      const output = item.authFunction.output;
       await esbuild.build({
         entryPoints: [srcFile],
         outfile: output,
