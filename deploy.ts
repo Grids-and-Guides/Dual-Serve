@@ -51,4 +51,4 @@ export const appStack = new AppStack(
   );
   
   // To generate JSON
-  console.log(JSON.stringify(appStack, null, 2));
+  // console.log(JSON.stringify(appStack, null, 2));

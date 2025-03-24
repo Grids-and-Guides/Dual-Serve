@@ -41,7 +41,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b4009035d90e23f0039d371c1a25e55355892249ceddbff0e1477d4fea5f2b4e.zip"
+     "S3Key": "24f091b2ec4b7048fe072c2fc6ffa520952b4242c49b630b4543738ebba38065.zip"
     },
     "Environment": {
      "Variables": {
@@ -65,7 +65,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "test-cdk-serverless-/hello-local/Resource",
-    "aws:asset:path": "asset.b4009035d90e23f0039d371c1a25e55355892249ceddbff0e1477d4fea5f2b4e",
+    "aws:asset:path": "asset.24f091b2ec4b7048fe072c2fc6ffa520952b4242c49b630b4543738ebba38065",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }

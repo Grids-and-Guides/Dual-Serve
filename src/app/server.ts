@@ -1,5 +1,5 @@
 // Import the 'express' module along with 'Request' and 'Response' types from express
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { courseList } from '../services/course/list-course';
 import { connectToDatabase } from '../shared/database';
 import { CreateCourse } from '../services/course/create-course';
@@ -26,13 +26,23 @@ app.use(express.json())
 // Specify the port number for the server
 const port: number = 3000;
 
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const apiKey = req.headers['authorization'];
+  // In real-world use, validate against stored keys and use proper security
+  if (apiKey && apiKey === process.env.API_KEY) {
+    next();
+  } else {
+    res.status(401).send('Unauthorized');
+  }
+};
+
 // Define a route for the root path ('/')
 app.get('/', (req: Request, res: Response) => {
   // Send a response to the client
   res.send('Hello, TypeScript + Node.js + Express!');
 });
 
-app.get('/courses', (req: Request, res: Response) => {
+app.get('/courses', authMiddleware, (req: Request, res: Response) => {
   let result = courseList()
   // Send a response to the client
   res.send(result);

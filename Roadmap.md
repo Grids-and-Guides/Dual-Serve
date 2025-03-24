@@ -6,8 +6,9 @@
     - load env dynamically 
 - url
 - s3 bucket event 
+- authendication in local
 - app Stack
 - unit test
 - swagger 
-- individual lambda build and deploy
+- individual lambda build and deploy 
 - vs code workspace and husky 
