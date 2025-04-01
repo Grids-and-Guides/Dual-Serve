@@ -50,24 +50,86 @@ export const handler = async (event: any) => {
 };
 ```
 
-3. **Configure `app-config.json`**
-```json
-{
-  "appName": "My Serverless App",
-  "stage": "dev",
-  "provider": "aws",
-  "functions": [{
-    "name": "hello-dev",
-    "runtime": "lambda.Runtime.NODEJS_22_X",
-    "handler": "index.handler",
-    "srcFile": "src/lambda-handler/hello.ts",
-    "triggers": [{
-      "type": "http",
-      "endpoint": "/hello",
-      "method": "GET"
-    }]
-  }]
-}
+3. **Configure `deploy.ts`**
+
+deploy.ts file have the app configuration using this configuration we can update the serverless stack.
+```ts
+export const appStack = new AppStack(
+    "CDK lambda",
+    "1.0.0",
+    "ap-south-1",
+    getState(Stage.Local),
+    "aws",
+    {
+      "local": "../environment/.local.env",
+      "dev": "../environment/.dev.env",
+      "production": "../environment/.production.env"
+    },
+    [new Authorizer("custom-auth", "restApi", authFunction)],
+    [new Vpc("vpc-1")],
+    [
+      new ApiGateway(
+        "my-serverless-app-${self.stage}",
+        "http",
+        "custom",
+        "${env.cors}"
+      )
+    ],
+    [
+      new WebsocketApi(
+        "my-websocket-api-${self.stage}",
+        "$request.body.action",
+        "${self.stage}"
+      )
+    ],
+    [helloFunction] // here we can append the functions
+);
+```
+#### Function Configuration
+Using following steps we can create new function.
+- 1. create new handler like following example. 
+```ts
+
+import { Handler } from 'aws-lambda';
+import { sayHello } from '../../../services/examples/hello';
+import { FunctionConfig, Trigger } from '../../../../app';
+
+export const handler: Handler = async (event, context) => {
+    console.log('EVENT: \n' + JSON.stringify(event, null, 2));
+    const result = await sayHello(event.body, event.headers, context);
+    return JSON.stringify({ message: result});
+};
+
+const helloTrigger = new Trigger(
+    "http",
+    "hello",
+    "GET",
+    "application/json",
+    "my-serverless-app-${self.stage}",
+    "custom-auth"
+  );
+  
+export const helloFunction = new FunctionConfig(
+    "hello-${self.stage}",
+    "lambda.Runtime.NODEJS_22_X",
+    "index.handler",
+    "src/lambda-handler/examples/http/hello.ts",
+    "dist/lambda-handler/examples/http/hello/index.js",
+    256,
+    10,
+    30,
+    {
+      "MONGODB_URI": "localhost:db",
+      "frontendUrl": "${env.frontendUrl}",
+      "functionName": "${currentFunction.name}",
+      "cors": "${env.cors}"
+    },
+    [helloTrigger]
+  );
+```
+- 2. create new service file for that function. all business logic should have only on this file. you can example service file in following directory 
+```
+/src/services/course/create-course.ts
 ```
 
 4. **Build & Deploy**
@@ -81,7 +143,7 @@ cdk deploy
 
 ## ⚙️ Configuration Guide
 
-The `app-config.json` is the single source of truth:
+The deploy.ts file creates the AppStack using app.ts. This class returns the following JSON, which the actual CDK relies on to function. However, no modifications are needed here, as the deploy.ts file alone is sufficient for all basic operations. If you need to make any modifications to the CDK stack, you can use this file. 
 
 ### Core Structure
 ```json5
@@ -110,35 +172,6 @@ The `app-config.json` is the single source of truth:
   "production": "../environment/.production.env"
 }
 ```
-
-#### Function Configuration
-```json
-{
-  "name": "function-name-${self.stage}",
-  "runtime": "lambda.Runtime.NODEJS_22_X",
-  "handler": "index.handler",
-  "srcFile": "path/to/source.ts",
-  "triggers": [{
-    "type": "http|websocket",
-    "endpoint": "/your-route",
-    "method": "GET|POST|PUT|DELETE",
-    "authorizer": "custom-auth"
-  }],
-  "environmentVariable": {
-    "KEY": "value ${env.VAR}"
-  }
-}
-```
-
-#### WebSocket Support
-```json
-"websocketApi": [{
-  "name": "my-ws-api-${self.stage}",
-  "routeSelectionExpression": "$request.body.action",
-  "stageName": "${self.stage}"
-}]
-```
-
 ## Deployment
 
 ### Build Project
@@ -168,35 +201,6 @@ cors=https://yourapp.com,http://localhost:3000
 Access in config:
 ```json
 "${env.frontendUrl}"
-```
-
-## Examples
-
-### HTTP Function
-```json
-{
-  "name": "user-api-${self.stage}",
-  "runtime": "lambda.Runtime.NODEJS_22_X",
-  "handler": "index.handler",
-  "srcFile": "src/user/handler.ts",
-  "triggers": [{
-    "type": "http",
-    "endpoint": "/users",
-    "method": "POST",
-    "authorizer": "custom-auth"
-  }]
-}
-```
-
-### WebSocket Function
-```json
-{
-  "name": "chat-handler-${self.stage}",
-  "triggers": [{
-    "type": "websocket",
-    "endpoint": "$default"
-  }]
-}
 ```
 
 ## Contributing
