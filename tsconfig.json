@@ -15,5 +15,5 @@
     "isolatedModules": true,
   },
   "exclude": ["node_modules", "**/*.test.ts", "cdk.out", "bin/**", "builder.ts", "app.ts"],
-  "include": ["**/*.ts", "deploy.ts"]
+  "include": ["**/*.ts", "deploy.ts", "app.ts"]
 }
