@@ -13,6 +13,7 @@ import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 // Type definitions moved to top for better visibility
 type AuthorizerInfo = {
@@ -75,16 +76,32 @@ type AppConfig = {
 export class CdkStack extends cdk.Stack {
   private functionMap: Record<string, lambda.Function> = {};
   private authorizers: Record<string, AuthorizerInfo> = {};
+  private vpc?: ec2.IVpc;
+  private securityGroup?: ec2.SecurityGroup;
 
   constructor(scope: Construct, id: string, config: AppConfig, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    // Import existing VPC if configured
+    if (config.vpc && config.vpc.length > 0) {
+      this.vpc = ec2.Vpc.fromLookup(this, 'ExistingVpc', {
+        vpcName: config.vpc[0].name,
+      });
+
+      // Create security group for Lambda functions
+      this.securityGroup = new ec2.SecurityGroup(this, 'LambdaSecurityGroup', {
+        vpc: this.vpc,
+        description: 'Security group for Lambda functions',
+        allowAllOutbound: true,
+      });
+    }
 
     this.createLambdaFunctions(config);
     this.createAuthorizers(config);
     this.createApiGateways(config);
     this.createWebSocketApis(config);
     this.configureSchedulerTriggers(config);
-    // this.configureS3Events(config)
+    this.configureS3Events(config)
 
     console.log("Deployment completed successfully");
   }
@@ -102,7 +119,12 @@ export class CdkStack extends cdk.Stack {
       code: lambda.Code.fromAsset(this.getLambdaAssetPath(fnConfig)),
       handler: fnConfig.handler,
       environment: this.createLambdaEnvironment(config, fnConfig),
-      layers: this.createLayers(config, fnConfig)
+      layers: this.createLayers(config, fnConfig),
+      ...(this.vpc && this.securityGroup && {
+        vpc: this.vpc,
+        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+        securityGroups: [this.securityGroup],
+      }),
     });
   }
 
