@@ -1,8 +1,8 @@
-import { CdkStack } from "../src/infra/cdk/cdk-stack";
+import { CdkStack } from "osff-dsl";
 import * as cdk from "aws-cdk-lib";
 import path from "path";
 import * as dotenv from 'dotenv';
-import { appStack } from "../deploy"
+import { appStack } from "./app-config"
 
 function deploy() {
     let stageName:any = "";
@@ -17,7 +17,6 @@ function deploy() {
             stackName: `chatbot-cdk-serverless-${stageName}`,
         })
 }
-
 
 
 try {

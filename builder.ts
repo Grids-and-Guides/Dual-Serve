@@ -1,5 +1,5 @@
 import esbuild from 'esbuild';
-import { appStack } from './deploy'
+import { appStack } from './bin/app-config';
 
 type Functions = {
     srcFile: string;
