@@ -1,53 +1,46 @@
-import { APIGatewayAuthorizerResult, APIGatewayTokenAuthorizerEvent } from 'aws-lambda';
-// import jwt from 'jsonwebtoken';
-// import jwksClient from 'jwks-rsa';
+import { APIGatewayAuthorizerResult, APIGatewayTokenAuthorizerEvent, AuthResponse, PolicyDocument } from 'aws-lambda';
+
+// generatePolicy creates a policy document to allow this user on this API:
+function generatePolicy (effect: string, resource: string): PolicyDocument {
+  const policyDocument = {} as PolicyDocument
+  if (effect && resource) {
+    policyDocument.Version = '2012-10-17'
+    policyDocument.Statement = []
+    const statementOne: any = {}
+    statementOne.Action = 'execute-api:Invoke'
+    statementOne.Effect = effect
+    statementOne.Resource = resource
+    policyDocument.Statement[0] = statementOne
+  }
+  return policyDocument
+}
 
 export const handler = async (event: APIGatewayTokenAuthorizerEvent): Promise<APIGatewayAuthorizerResult> => {
     // Extract the bearer authorization token from the event
     const authHeader = event.authorizationToken;
+    if(!authHeader){
+        throw new Error('authorization token not found');
+    }
     const token = authHeader.split(' ')[1]!;
-    console.log("token", token)
-    // Load the JWKS (JSON Web Key Set) from the well-known endpoint
-    // const jwksUrl = 'https://example.com/.well-known/jwks.json';
-    // const client = jwksClient({ jwksUri: jwksUrl });
 
     try {
-        // decode the token to get the kid
-        // const kid = jwt.decode(token, { complete: true })?.['header']['kid'];
-        // get the public key from the JWKS
-        // const key = await client.getSigningKey(kid);
-        // verify the token
-        // jwt.verify(token, key.getPublicKey());
+        if(token !== '1234'){
+            throw new Error("Invaild Token")
+        }
     } catch (err) {
         console.error('Error verifying token', err);
         // Return an authorization response indicating the request is not authorized
+        const policyDoc = generatePolicy('Deny', '*')
         return {
-            principalId: 'user',
-            policyDocument: {
-                Version: '2012-10-17',
-                Statement: [
-                    {
-                        Action: 'execute-api:Invoke',
-                        Effect: 'Deny',
-                        Resource: event.methodArn,
-                    },
-                ],
-            },
-        };
+            principalId: 'user',   // decoded.sub
+            policyDocument: policyDoc
+        } as AuthResponse;
     }
 
     // return an authorization response indicating the request is authorized
-    return {
-        principalId: 'user',
-        policyDocument: {
-            Version: '2012-10-17',
-            Statement: [
-                {
-                    Action: 'execute-api:Invoke',
-                    Effect: 'Allow',
-                    Resource: event.methodArn,
-                },
-            ],
-        },
-    };
+    const policyDoc = generatePolicy('Allow', '*')
+        return {
+            principalId: 'user',   // decoded.sub
+            policyDocument: policyDoc
+        } as AuthResponse;
 };

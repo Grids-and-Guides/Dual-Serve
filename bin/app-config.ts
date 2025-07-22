@@ -8,7 +8,7 @@ const authFunction = new FunctionConfig(
     "auth-${self.stage}",
     "lambda.Runtime.NODEJS_22_X",
     "index.handler",
-    "src/lambda-handler/examples/http/authorizer.ts",
+    path.resolve(process.cwd(),"src/lambda-handler/examples/http/authorizer.ts"),
     path.resolve(process.cwd(), "dist/lambda-handler/examples/http/authorizer/index.js"),
     256,
     10,
