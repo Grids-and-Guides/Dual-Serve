@@ -24,29 +24,30 @@ export const handler = async (
 //     return JSON.stringify({ message: result});
 // };
 
-const helloTrigger = new Trigger(
-    "http",
-    "hello/:id",
-    "GET",
-    "application/json",
-    "my-serverless-app-${self.stage}",
-    "custom-auth"
-  );
+const helloTrigger = new Trigger({
+    type: "http",
+    endpoint: "hello/:id",
+    method: "GET",
+    responseType: "application/json",
+    apiGatewayName: "my-serverless-app-${self.stage}",
+    authorizer: "custom-auth"
+  });
   
-export const helloFunction = new FunctionConfig(
-    "hello-${self.stage}",
-    "lambda.Runtime.NODEJS_22_X",
-    "index.handler",
-    path.resolve(process.cwd(),"src/lambda-handler/examples/http/hello.ts"),
-    path.resolve(process.cwd(), "dist/lambda-handler/examples/http/hello/index.js"),
-    256,
-    10,
-    30,
-    {
+export const helloFunction = new FunctionConfig({
+    name: "hello-${self.stage}",
+    runtime: "lambda.Runtime.NODEJS_22_X",
+    handler:"index.handler",
+    srcFile: path.resolve(process.cwd(),"src/lambda-handler/examples/http/hello.ts"),
+    output: path.resolve(process.cwd(), "dist/lambda-handler/examples/http/hello/index.js"),
+    memory: 256,
+    concurrency: 10,
+    timeout: 30,
+    environmentVariable: {
       "MONGODB_URI": "localhost:db",
       "frontendUrl": "${env.frontendUrl}",
       "functionName": "${currentFunction.name}",
       "cors": "${env.cors}"
     },
-    [helloTrigger]
+    triggers: [helloTrigger]
+  }
   );
