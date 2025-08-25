@@ -6,8 +6,8 @@ type Functions = {
     output: string;
 };
 
-const handlers = appStack.functions;
-const authHandlers = appStack.authorizer;
+const handlers = appStack.config.functions;
+const authHandlers = appStack.config.authorizer;
 
 const commonBuildOptions: esbuild.BuildOptions = {
   bundle: true,
@@ -22,8 +22,8 @@ const commonBuildOptions: esbuild.BuildOptions = {
 const buildAuthFunctions = async (): Promise<void> => {
   try {
     for (let item of authHandlers) {
-      const srcFile = item.authFunction.srcFile;
-      const output = item.authFunction.output;
+      const srcFile = item.config.authFunction.config.srcFile;
+      const output = item.config.authFunction.config.output;
       await esbuild.build({
         entryPoints: [srcFile],
         outfile: output,
@@ -38,13 +38,13 @@ const buildAuthFunctions = async (): Promise<void> => {
 
 const buildFunctions = async (): Promise<void> => {
   try {
-    for (const { srcFile, output } of handlers) {
+    for (const item of handlers) {
       await esbuild.build({
-        entryPoints: [srcFile],
-        outfile: output,
+        entryPoints: [item.config.srcFile],
+        outfile: item.config.output,
         ...commonBuildOptions,
       });
-      console.log(`Built ${output}`);
+      console.log(`Built ${item.config.output}`);
     }
   } catch (error) {
     console.error(error);

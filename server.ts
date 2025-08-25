@@ -1,4 +1,4 @@
-import { Request, Response, Express, NextFunction } from "express";
+import { Request, Response, Express } from "express";
 import express from "express"
 import path from "path";
 import dotenv from "dotenv";
@@ -8,47 +8,6 @@ import { FunctionConfig } from "osff-dsl";
 import { appStack as appConfig } from "./bin/app-config";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-
-const authorizersMap = new Map<string, FunctionConfig>();
-
-for (const auth of appConfig.authorizer || []) {
-  authorizersMap.set(auth.name, auth.authFunction);
-}
-
-function authorizerMiddleware(
-  authorizerFunc: (event: APIGatewayProxyEvent) => Promise<any>
-): (req: Request, res: Response, next: NextFunction) => Promise<void> {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const event: APIGatewayProxyEvent & {authorizationToken: string | string[] | null} = {
-      body: req.body ? JSON.stringify(req.body) : null,
-      headers: req.headers as any,
-      httpMethod: req.method,
-      isBase64Encoded: false,
-      path: req.path,
-      pathParameters: req.params,
-      queryStringParameters: req.query as any,
-      multiValueQueryStringParameters: null,
-      multiValueHeaders: {},
-      stageVariables: null,
-      requestContext: {} as any,
-      resource: "",
-      authorizationToken: req.headers['authorization']?req.headers['authorization']:null
-    };
-
-    try {
-      const authResult = await authorizerFunc(event);
-      if (authResult?.policyDocument.Statement[0].Effect !== 'Deny') {
-        (req as any).authContext = authResult.context || {};
-        return next();
-      }
-      res.status(401).json({ message: "Unauthorized" });
-    } catch (err) {
-      console.error("Authorization error:", err);
-      res.status(403).json({ message: "Forbidden" });
-    }
-  };
-}
-
 
 export const lambdaExpressAdapter =
   (lambdaHandler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
@@ -104,45 +63,26 @@ export const registerRoutes = async (app: Express) => {
   console.log("stage: ", stage)
   const envPath = path.resolve(__dirname, `./environment/.${argv.stage}.env`);
   dotenv.config({ path: envPath });
-  const functions: FunctionConfig[] = appConfig.functions;
+  const functions: FunctionConfig[] = appConfig.config.functions;
 
   for (const func of functions) {
-    if (!func.triggers) continue;
+    if (!func.config.triggers) continue;
 
-    for (const trigger of func.triggers) {
-      if (trigger.type !== "http") continue;
+    for (const trigger of func.config.triggers) {
+      if (trigger.config.type !== "http") continue;
 
-      const method = trigger.method.toLowerCase();
-      const route = "/" + trigger.endpoint.replace(/\$/g, ":");
+      const method = trigger.config.method.toLowerCase();
+      const route = "/" + trigger.config.endpoint.replace(/\$/g, ":");
 
-      const handler = loadHandler(func.srcFile, func.handler);
+      const handler = loadHandler(func.config.srcFile, func.config.handler);
 
       if (typeof handler !== "function") {
-        console.warn(`Invalid handler function for ${func.name}`);
+        console.warn(`Invalid handler function for ${func.config.name}`);
         continue;
       }
 
-      const middlewares:any = [];
-
-      // Only register middleware if authorizer exists
-      if (trigger.authorizer && authorizersMap.has(trigger.authorizer)) {
-        const authFunc = authorizersMap.get(trigger.authorizer)!;
-        const authHandler = loadHandler(authFunc.srcFile, authFunc.handler);
-
-        if (typeof authHandler === "function") {
-          middlewares.push(authorizerMiddleware(authHandler));
-        } else {
-          console.warn(`Invalid authorizer handler for ${trigger.authorizer}`);
-        }
-      }
-
-      middlewares.push(lambdaExpressAdapter(handler));
-
       console.log(`Mounting [${method.toUpperCase()}] ${route}`);
-      (app as any)[method](route, ...middlewares);
-
-      // console.log(`Mounting [${method.toUpperCase()}] ${route}`);
-      // (app as any)[method](route, lambdaExpressAdapter(handler));
+      (app as any)[method](route, lambdaExpressAdapter(handler));
     }
   }
 };
@@ -163,7 +103,7 @@ const argv = yargs(hideBin(process.argv))
 
 
 async function main() {
-  const app: Express = express();
+  const app = express();
   app.use(express.json());
   // Register the routes
   registerRoutes(app);
