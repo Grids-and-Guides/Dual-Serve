@@ -6,14 +6,18 @@
     "forceConsistentCasingInFileNames": true,            
     "strict": true,                                      
     "skipLibCheck": true,                               
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
     "preserveConstEnums": true,
-    "noEmit": true,
-    "moduleResolution":"node",
+    "noEmit": false,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "exclude": ["node_modules", "**/*.test.ts", "cdk.out", "bin/**", "builder.ts", "app.ts", "server.ts"],
+  "exclude": ["node_modules", "**/*.test.ts", "cdk.out", "builder.ts", "app.ts"],
   "include": ["**/*.ts", "deploy.ts", "app.ts"]
 }

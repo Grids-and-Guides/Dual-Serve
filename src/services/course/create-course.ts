@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { connectToDatabase } from '../../shared/database';
 import { Course } from './course-type';
+import { connectToDatabase } from '@/shared/database';
 
 const courseSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),  // Required field
