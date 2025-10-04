@@ -15,7 +15,7 @@ function deploy() {
     new CdkStack(app, `test-cdk-serverless-${stageName}`,
         appStack.config as any,
         {
-            stackName: `chatbot-cdk-serverless-${stageName}`,
+            stackName: `cdk-serverless-${stageName}`,
         })
 }
 
@@ -23,5 +23,5 @@ function deploy() {
 try {
     deploy()
 } catch (error) {
-    console.log(error)
+    console.log("Error in deploying:: ", error)
 }

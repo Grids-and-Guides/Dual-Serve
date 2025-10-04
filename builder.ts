@@ -16,7 +16,7 @@ const commonBuildOptions: esbuild.BuildOptions = {
   target: 'node20',  // or whichever Node.js version you are using
   treeShaking: true,  // Enable aggressive tree-shaking
   sourcemap: false,
-  external: [],  // Add any external dependencies here if needed (e.g., 'aws-sdk' for Lambdas)
+  external: ['yargs'],  // Add any external dependencies here if needed (e.g., 'aws-sdk' for Lambdas)
 };
 
 const buildAuthFunctions = async (): Promise<void> => {

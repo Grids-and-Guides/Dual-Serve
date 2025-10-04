@@ -2,7 +2,7 @@ import { Request, Response, Express } from "express";
 import express from "express"
 import path from "path";
 import dotenv from "dotenv";
-// import fs from "fs";
+import cors from "cors";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { FunctionConfig } from "osff-dsl";
 import { appStack as appConfig } from "./bin/app-config";
@@ -51,6 +51,14 @@ export const lambdaExpressAdapter =
       }
     };
 
+// Check whether the run command is development run 
+function isTsNode() {
+  return (
+    (process as any)[Symbol.for("ts-node.register.instance")] !== undefined ||
+    process.argv.some((arg) => arg.includes("ts-node"))
+  );
+}
+
 // Helper: Load and execute the handler
 function loadHandler(outputPath: string, handlerRef: string) {
   const module = require(outputPath);
@@ -74,10 +82,12 @@ export const registerRoutes = async (app: Express) => {
       const method = trigger.config.method.toLowerCase();
       const route = "/" + trigger.config.endpoint.replace(/\$/g, ":");
 
-      const handler = loadHandler(func.config.srcFile, func.config.handler);
+      const handlerPath = isTsNode() ? func.config.srcFile : func.config.output; // check whether it is development run or build
+
+      const handler = loadHandler(handlerPath, func.config.handler);
 
       if (typeof handler !== "function") {
-        console.warn(`Invalid handler function for ${func.config.name}`);
+        console.error(`Invalid handler function for ${func.config.name}, handler-path : ${handlerPath}`);
         continue;
       }
 
@@ -91,7 +101,7 @@ export const registerRoutes = async (app: Express) => {
 const argv = yargs(hideBin(process.argv))
   .option("port", {
     type: "number",
-    default: 3001,
+    default: 8000,
     describe: "Port to run the server on",
   })
   .option("stage", {
@@ -101,13 +111,57 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
+function parseCorsEnv(envValue: string | undefined) {
+  if (!envValue) return {};
+  try {
+    return JSON.parse(envValue);
+  } catch (e) {
+    console.error("Failed to parse CORS env:", e);
+    return {};
+  }
+}
+  
+function setupCors(app: Express) {
+  const corsConfig = parseCorsEnv(process.env.cors);
+
+  if (!corsConfig) {
+    return;
+  }
+
+  console.log("Setting up CORS...");
+
+  const corsOptions = {
+    origin: corsConfig.allowOrigins || "",
+    methods: corsConfig.allowMethods || [],
+  };
+
+  app.use(cors(corsOptions));
+}
+
+function loadEnvironments(stage: string) {
+  const envPath = path.resolve(__dirname, `./environment/.${stage}.env`);
+
+  dotenv.config({ path: envPath });
+}
 
 async function main() {
   const app = express();
   app.use(express.json());
+
+  const stage = argv.stage;
+
+  console.log("Stage:: ", stage);
+
+  // Load ENV
+  loadEnvironments(stage);
+
+  // Setup cors
+  setupCors(app);
+
   // Register the routes
   registerRoutes(app);
-  const PORT = argv.port || 3001;
+  
+  const PORT = argv.port || 8000;
   process.env.STAGE = argv.stage;
   app.listen(PORT, () => {
     console.log(`🚀 ${process.env.STAGE} - Server running at http://localhost:${PORT}`);

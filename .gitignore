@@ -1,2 +1,12 @@
+# Dependencies
 node_modules
-environment
+
+# Environment variables
+# environment
+
+# Builds
+dist
+cdk.out
+
+# Others
+.DS_Store

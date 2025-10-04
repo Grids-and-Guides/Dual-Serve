@@ -1,10 +1,14 @@
 import { Db, MongoClient } from 'mongodb'
 
-const MONGODB_URI = "mongodb+srv://gfd:gd@cluster0.3uuvs.mongodb.net/test-demo?retryWrites=true&w=majority";
+const MONGODB_URI = process.env.MONGODB_URI;
 // Once we connect to the database once, we'll store that connection and reuse it so that we don't have to connect to the database on every request.
 export let cachedDb:Db|null = null;
 
 export function connectToDatabase(): Promise<Db> {
+    if (!MONGODB_URI) {
+        throw new Error("MONGODB_URI is required");
+    }
+    
     return new Promise(async (resolve, reject)=> {
         if (cachedDb) {
             resolve(cachedDb);

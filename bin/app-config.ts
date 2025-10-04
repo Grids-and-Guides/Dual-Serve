@@ -1,15 +1,17 @@
 import { ApiGateway, AppStack, Authorizer, FunctionConfig, getState, Stage, Vpc, WebsocketApi } from "osff-dsl";
-import { helloFunction } from "../src/lambda-handler/examples/http/hello";
-import { courseFunction } from "../src/lambda-handler/examples/http/course/course.config";
 import path from "path";
+
+import { courseGetFunction } from "../src/apis/examples/courses/get/get-course.config"
+import { courseListFunction } from "../src/apis/examples/courses/list/list-course.config"
+import { usersListFunction } from "../src/apis/examples/users/list/get-user.config"
 
 // Create object instances
 const authFunction = new FunctionConfig({
     name: "auth-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler: "index.handler",
-    srcFile: "src/lambda-handler/examples/http/authorizer.ts",
-    output: path.resolve(process.cwd(), "dist/lambda-handler/examples/http/authorizer/index.js"),
+    srcFile: "src/apis/examples/authorizer.ts",
+    output: path.resolve(process.cwd(), "dist/src/apis/examples/authorizer.js"),
     memory: 256,
     concurrency: 10,
     timeout: 30,
@@ -49,7 +51,7 @@ export const appStack = new AppStack({
         stageName: "${self.stage}"
       })
     ],
-    functions: [helloFunction, courseFunction]
+    functions: [courseGetFunction, courseListFunction, usersListFunction]
   }
   );
   
