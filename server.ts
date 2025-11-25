@@ -10,7 +10,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 export const lambdaExpressAdapter =
-  (lambdaHandler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
+  (getLambdaHandler: () => (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
     async (req: Request, res: Response) => {
       const queryStringParameters: Record<string, string> = {};
 
@@ -43,6 +43,8 @@ export const lambdaExpressAdapter =
       };
 
       try {
+        const lambdaHandler = getLambdaHandler();
+
         const result = await lambdaHandler(event);
         res.status(result.statusCode).set(result.headers || {}).send(result.body);
       } catch (err: any) {
@@ -61,10 +63,20 @@ function isTsNode() {
 
 // Helper: Load and execute the handler
 function loadHandler(outputPath: string, handlerRef: string) {
+  console.time("load-time")
   const module = require(outputPath);
+  console.timeEnd("load-time")
   const [obj, fn] = handlerRef.split(".");
   return module[fn] || module[obj] || module;
 }
+
+const createLazyHandler = (outputPath: string, handlerRef: string) => {  
+  return async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    
+    const handler = loadHandler(outputPath, handlerRef);
+    return handler(event);
+  };
+};
 
 export const registerRoutes = async (app: Express) => {
   const stage = argv.stage;
@@ -72,6 +84,8 @@ export const registerRoutes = async (app: Express) => {
   const envPath = path.resolve(__dirname, `./environment/.${argv.stage}.env`);
   dotenv.config({ path: envPath });
   const functions: FunctionConfig[] = appConfig.config.functions;
+
+  console.time("Route Registration");
 
   for (const func of functions) {
     if (!func.config.triggers) continue;
@@ -84,17 +98,13 @@ export const registerRoutes = async (app: Express) => {
 
       const handlerPath = isTsNode() ? func.config.srcFile : func.config.output; // check whether it is development run or build
 
-      const handler = loadHandler(handlerPath, func.config.handler);
-
-      if (typeof handler !== "function") {
-        console.error(`Invalid handler function for ${func.config.name}, handler-path : ${handlerPath}`);
-        continue;
-      }
+      const lazyHandler = createLazyHandler(handlerPath, func.config.handler);
 
       console.log(`Mounting [${method.toUpperCase()}] ${route}`);
-      (app as any)[method](route, lambdaExpressAdapter(handler));
+      (app as any)[method](route, lambdaExpressAdapter(() => lazyHandler));
     }
   }
+  console.timeEnd("Route Registration");
 };
 
 // CLI argument parsing
