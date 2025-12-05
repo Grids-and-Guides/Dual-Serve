@@ -1,0 +1,32 @@
+import path from "path";
+import { FunctionConfig, Trigger } from 'osff-dsl';
+
+const {{functionName}}Trigger = new Trigger({
+  type: "http",
+  endpoint: "{{endpoint}}",
+  method: "{{method}}",
+  responseType: "application/json",
+  apiGatewayName: "my-serverless-app-${self.stage}",
+  authorizer: ""
+});
+
+export const {{functionName}}Function = new FunctionConfig({
+  name: "{{functionName}}-${self.stage}",
+  runtime: "lambda.Runtime.NODEJS_22_X",
+  handler: "index.handler",
+  srcFile: path.resolve(
+    process.cwd(),
+    "src/lambda-handler/examples/http/{{functionName}}/{{functionName}}.ts"
+  ),
+  output: path.resolve(
+    process.cwd(),
+    "dist/lambda-handler/examples/http/{{functionName}}/{{functionName}}.js"
+  ),
+  memory: 256,
+  concurrency: 1,
+  timeout: 30,
+  environmentVariable: {
+    cors: "${env.cors}"
+  },
+  triggers: [{{functionName}}Trigger]
+});
