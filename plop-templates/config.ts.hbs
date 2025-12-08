@@ -1,7 +1,7 @@
 import path from "path";
 import { FunctionConfig, Trigger } from 'osff-dsl';
 
-const {{functionName}}Trigger = new Trigger({
+const {{camelCase functionName}}Trigger = new Trigger({
   type: "http",
   endpoint: "{{endpoint}}",
   method: "{{method}}",
@@ -10,17 +10,17 @@ const {{functionName}}Trigger = new Trigger({
   authorizer: ""
 });
 
-export const {{functionName}}Function = new FunctionConfig({
+export const {{camelCase functionName}}Function = new FunctionConfig({
   name: "{{functionName}}-${self.stage}",
   runtime: "lambda.Runtime.NODEJS_22_X",
   handler: "index.handler",
   srcFile: path.resolve(
     process.cwd(),
-    "src/lambda-handler/examples/http/{{functionName}}/{{functionName}}.ts"
+    "src/api/http/{{functionName}}/{{functionName}}.ts"
   ),
   output: path.resolve(
     process.cwd(),
-    "dist/lambda-handler/examples/http/{{functionName}}/{{functionName}}.js"
+    "dist/api/http/{{functionName}}/{{functionName}}.js"
   ),
   memory: 256,
   concurrency: 1,
@@ -28,5 +28,5 @@ export const {{functionName}}Function = new FunctionConfig({
   environmentVariable: {
     cors: "${env.cors}"
   },
-  triggers: [{{functionName}}Trigger]
+  triggers: [{{camelCase functionName}}Trigger]
 });
