@@ -3,7 +3,11 @@ import path from "path";
 
 import { courseGetFunction } from "../src/apis/examples/courses/get/get-course.config"
 import { courseListFunction } from "../src/apis/examples/courses/list/list-course.config"
-import { usersListFunction } from "../src/apis/examples/users/list/get-user.config"
+import { usersListFunction } from "../src/apis/examples/users/list/get-users.config"
+import { createUserFunction } from "@/apis/examples/users/create/create-user.config";
+import { getUserFunction } from "@/apis/examples/users/get/get-user.config";
+import { updateUserFunction } from "@/apis/examples/users/update/update-user.config";
+import { deleteUserFunction } from "@/apis/examples/users/delete/delete-user.config";
 
 // Create object instances
 const authFunction = new FunctionConfig({
@@ -51,7 +55,15 @@ export const appStack = new AppStack({
         stageName: "${self.stage}"
       })
     ],
-    functions: [courseGetFunction, courseListFunction, usersListFunction]
+    functions: [
+      courseGetFunction, 
+      courseListFunction, 
+      usersListFunction, 
+      createUserFunction, 
+      getUserFunction,
+      updateUserFunction,
+      deleteUserFunction,
+    ]
   }
   );
   
