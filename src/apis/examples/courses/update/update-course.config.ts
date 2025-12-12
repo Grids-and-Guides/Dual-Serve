@@ -14,7 +14,7 @@ export const updateCourseFunction = new FunctionConfig({
     name: "update-course-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
-    srcFile: path.resolve(process.cwd(),"src/apis/examples/courses/update/index.ts"),
+    srcFile: path.resolve(process.cwd(),"src/apis/examples/courses/update/update-course.ts"),
     output: path.resolve(process.cwd(), "dist/src/apis/examples/courses/update/index.js"),
     memory:256,
     concurrency: 10,

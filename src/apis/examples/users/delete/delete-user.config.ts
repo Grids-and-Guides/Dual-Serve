@@ -14,7 +14,7 @@ export const deleteUserFunction = new FunctionConfig({
     name: "delete-user-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
-    srcFile: path.resolve(process.cwd(),"src/apis/examples/users/delete/index.ts"),
+    srcFile: path.resolve(process.cwd(),"src/apis/examples/users/delete/delete-user.ts"),
     output: path.resolve(process.cwd(), "dist/src/apis/examples/users/delete/index.js"),
     memory:256,
     concurrency: 10,

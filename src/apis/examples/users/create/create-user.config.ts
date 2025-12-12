@@ -14,7 +14,7 @@ export const createUserFunction = new FunctionConfig({
     name: "createUser-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
-    srcFile: path.resolve(process.cwd(), "src/apis/examples/users/create/index.ts"),
+    srcFile: path.resolve(process.cwd(), "src/apis/examples/users/create/create-user.ts"),
     output: path.resolve(process.cwd(), "dist/src/apis/examples/users/create/index.ts"),
     memory:256,
     concurrency: 10,

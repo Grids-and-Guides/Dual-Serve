@@ -3,7 +3,7 @@ import path from "path";
 
 import { courseGetFunction } from "../src/apis/examples/courses/get/get-course.config"
 import { courseListFunction } from "../src/apis/examples/courses/list/list-course.config"
-import { usersListFunction } from "../src/apis/examples/users/list/get-users.config"
+import { usersListFunction } from "../src/apis/examples/users/list/list-user.config"
 import { createUserFunction } from "@/apis/examples/users/create/create-user.config";
 import { getUserFunction } from "@/apis/examples/users/get/get-user.config";
 import { updateUserFunction } from "@/apis/examples/users/update/update-user.config";

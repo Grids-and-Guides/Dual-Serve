@@ -14,7 +14,7 @@ export const deleteCourseFunction = new FunctionConfig({
     name: "delete-course-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
-    srcFile: path.resolve(process.cwd(),"src/apis/examples/courses/delete/index.ts"),
+    srcFile: path.resolve(process.cwd(),"src/apis/examples/courses/delete/delete-course.ts"),
     output: path.resolve(process.cwd(), "dist/src/apis/examples/courses/delete/index.js"),
     memory:256,
     concurrency: 10,

@@ -14,7 +14,7 @@ export const createCourseFunction = new FunctionConfig({
     name: "createCourse-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
-    srcFile: path.resolve(process.cwd(), "src/apis/examples/courses/create/index.ts"),
+    srcFile: path.resolve(process.cwd(), "src/apis/examples/courses/create/create-course.ts"),
     output: path.resolve(process.cwd(), "dist/src/apis/examples/courses/create/index.ts"),
     memory:256,
     concurrency: 10,
