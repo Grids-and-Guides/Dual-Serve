@@ -1,4 +1,3 @@
-// src/apis/example/users/update/update-user.ts
 import { Handler } from "aws-lambda";
 import { updateUser } from "../../../../services/users/update/update-user.service";
 import { successResponse, errorResponse, BadRequestError } from "../../../../shared/response";

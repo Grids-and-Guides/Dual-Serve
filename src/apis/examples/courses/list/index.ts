@@ -1,12 +1,36 @@
+import { Handler } from "aws-lambda";
+import { validateRequest } from "../../../../shared/validation";
+import { getCoursesRequestSchema } from "./list-course.dto";
+import { getCoursesList } from "../../../../services/course/list/list-course.service";
+import { successResponse, errorResponse } from "../../../../shared/response";
 
-import { courseList } from '@/services/course/list-course';
-import { Handler } from 'aws-lambda';
+export const handler: Handler = async (event) => {
+  try {
+    // Validate query params
+    const params = validateRequest({
+      schema: getCoursesRequestSchema,
+      data: {
+        ...(event.queryStringParameters || {}),
+      },
+    });
 
+    const coursesData = await getCoursesList(
+      params.page,
+      params.limit,
+      params.search,
+      params.sortBy,
+      params.sortOrder
+    );
 
-export const handler: Handler = async (event, context) => {
-    // console.log('EVENT: \n' + JSON.stringify(event, null, 2));
-    const list = courseList();
-    console.log("env", process.env.frontendUrl);
-    return { statusCode: 200, body: list};
+    return successResponse("Courses fetched successfully", coursesData);
+
+  } catch (error: any) {
+    console.error("Error in get courses lambda:", error);
+
+    return errorResponse(
+      error.message ?? null,
+      error.type ?? "Internal server error",
+      error.statusCode ?? 500
+    );
+  }
 };
-

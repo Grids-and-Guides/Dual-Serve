@@ -1,4 +1,3 @@
-// src/apis/example/users/create/create-user.dto.ts
 import { z } from "zod";
 
 export const createUserRequestSchema = z.object({

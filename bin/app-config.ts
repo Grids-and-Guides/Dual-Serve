@@ -8,6 +8,9 @@ import { createUserFunction } from "@/apis/examples/users/create/create-user.con
 import { getUserFunction } from "@/apis/examples/users/get/get-user.config";
 import { updateUserFunction } from "@/apis/examples/users/update/update-user.config";
 import { deleteUserFunction } from "@/apis/examples/users/delete/delete-user.config";
+import { createCourseFunction } from "@/apis/examples/courses/create/create-course.config";
+import { updateCourseFunction } from "@/apis/examples/courses/update/update-course.config";
+import { deleteCourseFunction } from "@/apis/examples/courses/delete/delete-course.config";
 
 // Create object instances
 const authFunction = new FunctionConfig({
@@ -63,6 +66,9 @@ export const appStack = new AppStack({
       getUserFunction,
       updateUserFunction,
       deleteUserFunction,
+      createCourseFunction,
+      updateCourseFunction,
+      deleteCourseFunction,
     ]
   }
   );
