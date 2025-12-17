@@ -1,21 +1,21 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
 
-const courseTrigger = new Trigger({
+const updateUserTrigger = new Trigger({
     type: "http",
-    endpoint: "courses/:id",
-    method: "GET",
+    endpoint: "users/:id",
+    method: "PUT",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
     authorizer: "custom-auth"
   });
   
-export const courseGetFunction = new FunctionConfig({
-    name: "course-get-${self.stage}",
+export const updateUserFunction = new FunctionConfig({
+    name: "update-user-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
-    srcFile: path.resolve(process.cwd(),"src/apis/examples/courses/get/get-course.ts"),
-    output: path.resolve(process.cwd(), "dist/src/apis/examples/courses/get/index.js"),
+    srcFile: path.resolve(process.cwd(),"src/apis/examples/users/update/update-user.ts"),
+    output: path.resolve(process.cwd(), "dist/src/apis/examples/users/update/index.js"),
     memory:256,
     concurrency: 10,
     timeout:30,
@@ -25,5 +25,5 @@ export const courseGetFunction = new FunctionConfig({
       "functionName": "${currentFunction.name}",
       "cors": "${env.cors}"
     },
-    triggers: [courseTrigger]
+    triggers: [updateUserTrigger]
   });

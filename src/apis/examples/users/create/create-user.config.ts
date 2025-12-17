@@ -1,21 +1,21 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
 
-const usersTrigger = new Trigger({
+const createUserTrigger = new Trigger({
     type: "http",
     endpoint: "users",
-    method: "GET",
+    method: "POST",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
     authorizer: "custom-auth"
-  });
-  
-export const usersListFunction = new FunctionConfig({
-    name: "user-list-${self.stage}",
+});
+
+export const createUserFunction = new FunctionConfig({
+    name: "createUser-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
-    srcFile: path.resolve(process.cwd(),"src/apis/examples/users/list/index.ts"),
-    output: path.resolve(process.cwd(), "dist/src/apis/examples/users/list/index.js"),
+    srcFile: path.resolve(process.cwd(), "src/apis/examples/users/create/create-user.ts"),
+    output: path.resolve(process.cwd(), "dist/src/apis/examples/users/create/index.ts"),
     memory:256,
     concurrency: 10,
     timeout:30,
@@ -25,5 +25,5 @@ export const usersListFunction = new FunctionConfig({
       "functionName": "${currentFunction.name}",
       "cors": "${env.cors}"
     },
-    triggers: [usersTrigger]
-  });
+    triggers: [createUserTrigger]
+});

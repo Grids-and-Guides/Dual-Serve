@@ -17,7 +17,7 @@ export function connectToDatabase(): Promise<Db> {
               // Connect to our MongoDB database hosted on MongoDB Atlas
               const client = await MongoClient.connect(MONGODB_URI);
               // Specify which database we want to use
-              const db = await client.db("test-demo");
+              const db = await client.db("dual-serve");
               cachedDb = db;
               resolve(db);
           } catch (error) {
