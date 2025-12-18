@@ -1,37 +1,49 @@
 import { Handler } from "aws-lambda";
 import { updateCourse } from "../../../../services/examples/course/update/update.course.service";
-import { successResponse, errorResponse, BadRequestError } from "../../../../shared/response";
+import {
+  successResponse,
+  errorResponse,
+  BadRequestError,
+} from "../../../../shared/response";
 import { ObjectId } from "mongodb";
+import { validateRequest } from "../../../../shared/validation";
+import {
+  updateCoursePathSchema,
+  updateCourseBodySchema,
+  UpdateCoursePathRequest,
+  UpdateCourseBodyRequest,
+} from "./update-course.dto";
 
 export const handler: Handler = async (event) => {
   try {
-    const courseId = event.pathParameters?.id;
+    // Validate path params
+    const pathParams = validateRequest<UpdateCoursePathRequest>({
+      schema: updateCoursePathSchema,
+      data: {
+        id: event.pathParameters?.id,
+      },
+    });
 
-    // Course id missing
-    if (!courseId) {
-      throw BadRequestError("Course id is required");
-    }
+    const courseId = pathParams.id;
 
-    //Invalid ObjectId
+    // ObjectId check
     if (!ObjectId.isValid(courseId)) {
-      throw BadRequestError("Invalid Course id format");
+      throw BadRequestError("Invalid course id format");
     }
 
-    //Parse request body (new Course data)
-    if (!event.body) {
-      throw BadRequestError("Request body is required");
-    }
+    // Parse body
+    const body =
+      typeof event.body === "string" ? JSON.parse(event.body) : event.body;
 
-    const courseData = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-
-    if (!courseData) {
-      throw BadRequestError("Invalid request body");
-    }
+    // Validate body
+    const courseData = validateRequest<UpdateCourseBodyRequest>({
+      schema: updateCourseBodySchema,
+      data: body,
+    });
 
     const updatedCourse = await updateCourse(courseId, courseData);
 
     return successResponse("Course updated successfully", updatedCourse);
-
   } catch (error: any) {
     console.error("Error updating course:", error);
 

@@ -1,16 +1,30 @@
 import { Handler } from "aws-lambda";
 import { getCourse } from "../../../../services/examples/course/get/get-course.service";
-import { BadRequestError, errorResponse, successResponse } from "../../../../shared/response";
+import {
+  BadRequestError,
+  errorResponse,
+  successResponse,
+} from "../../../../shared/response";
 import { ObjectId } from "mongodb";
+import { validateRequest } from "../../../../shared/validation";
+import {
+  getCourseRequestSchema,
+  GetCourseRequest,
+} from "./get-course.dto";
 
 export const handler: Handler = async (event) => {
   try {
-    const courseId = event.pathParameters?.id;
+    // Validate path params
+    const request = validateRequest<GetCourseRequest>({
+      schema: getCourseRequestSchema,
+      data: {
+        id: event.pathParameters?.id,
+      },
+    });
 
-    if (!courseId) {
-      throw BadRequestError("Course ID is required");
-    }
+    const courseId = request.id;
 
+    // ObjectId validation
     if (!ObjectId.isValid(courseId)) {
       throw BadRequestError("Invalid course ID format");
     }
@@ -18,7 +32,6 @@ export const handler: Handler = async (event) => {
     const courseData = await getCourse(courseId);
 
     return successResponse("Course fetched successfully", courseData);
-
   } catch (error: any) {
     console.error("Error in get course lambda:", error);
 
