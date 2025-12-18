@@ -1,5 +1,6 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
+import { createUserRequestSchema } from './create-user.dto';
 
 const createUserTrigger = new Trigger({
     type: "http",
@@ -7,7 +8,8 @@ const createUserTrigger = new Trigger({
     method: "POST",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: ""
+    authorizer: "",
+    requestSchema:createUserRequestSchema
 });
 
 export const createUserFunction = new FunctionConfig({

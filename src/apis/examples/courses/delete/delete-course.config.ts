@@ -1,5 +1,6 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
+import { deleteCourseRequestSchema } from './delete-course.dto';
 
 const deleteCourseTrigger = new Trigger({
     type: "http",
@@ -7,7 +8,8 @@ const deleteCourseTrigger = new Trigger({
     method: "DELETE",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: ""
+    authorizer: "",
+    requestSchema:deleteCourseRequestSchema
   });
   
 export const deleteCourseFunction = new FunctionConfig({

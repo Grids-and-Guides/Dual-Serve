@@ -1,5 +1,6 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
+import { createCourseRequestSchema } from './create-course.dto';
 
 const createCourseTrigger = new Trigger({
     type: "http",
@@ -7,7 +8,8 @@ const createCourseTrigger = new Trigger({
     method: "POST",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: ""
+    authorizer: "",
+    requestSchema:createCourseRequestSchema
 });
 
 export const createCourseFunction = new FunctionConfig({
