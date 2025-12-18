@@ -6,42 +6,34 @@ import {
   BadRequestError,
 } from "../../../../shared/response";
 import { validateRequest } from "../../../../shared/validation";
-import {
-  updateUserPathSchema,
-  updateUserBodySchema,
-  UpdateUserPathRequest,
-  UpdateUserBodyRequest,
-} from "./update-user.dto";
 import { ObjectId } from "mongodb";
+import { updateUserBodySchema, UpdateUserRequest } from "./update-user.dto";
 
 export const handler: Handler = async (event) => {
   try {
+    const body =
+      typeof event.body === "string"
+        ? JSON.parse(event.body)
+        : event.body ?? {};
+
     // Validate path params
-    const pathParams = validateRequest<UpdateUserPathRequest>({
-      schema: updateUserPathSchema,
+    const params = validateRequest<UpdateUserRequest>({
+      schema: updateUserBodySchema,
       data: {
         id: event.pathParameters?.id,
+        ...body
       },
     });
 
-    const userId = pathParams.id;
+    const userId = params.id;
 
     // ObjectId check
     if (!ObjectId.isValid(userId)) {
       throw BadRequestError("Invalid user id format");
     }
 
-    // Parse body
-    const body =
-      typeof event.body === "string" ? JSON.parse(event.body) : event.body;
 
-    // Validate body
-    const userData = validateRequest<UpdateUserBodyRequest>({
-      schema: updateUserBodySchema,
-      data: body,
-    });
-
-    const updatedUser = await updateUser(userId, userData);
+    const updatedUser = await updateUser(userId, params);
 
     return successResponse("User updated successfully", updatedUser);
   } catch (error: any) {
