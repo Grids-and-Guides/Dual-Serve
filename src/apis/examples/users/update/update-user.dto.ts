@@ -3,7 +3,8 @@ import { z } from "zod";
 export const updateUserPathSchema = z.object({
   id: z
     .string({ message: "User id is required" })
-    .min(1, { message: "User id is required" }),
+    .min(1, { message: "User id is required" })
+    .meta({ in: "path" }),
 });
 
 export const updateUserBodySchema = z

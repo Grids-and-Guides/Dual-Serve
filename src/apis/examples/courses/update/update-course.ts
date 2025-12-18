@@ -1,49 +1,48 @@
 import { Handler } from "aws-lambda";
+import { ObjectId } from "mongodb";
+
 import { updateCourse } from "../../../../services/examples/course/update/update.course.service";
 import {
   successResponse,
   errorResponse,
   BadRequestError,
 } from "../../../../shared/response";
-import { ObjectId } from "mongodb";
 import { validateRequest } from "../../../../shared/validation";
 import {
-  updateCoursePathSchema,
-  updateCourseBodySchema,
-  UpdateCoursePathRequest,
-  UpdateCourseBodyRequest,
+  UpdateCourseRequest,
+  updateCourseSchema,
 } from "./update-course.dto";
 
 export const handler: Handler = async (event) => {
   try {
-    // Validate path params
-    const pathParams = validateRequest<UpdateCoursePathRequest>({
-      schema: updateCoursePathSchema,
+    // Safe body parse
+    const body =
+      typeof event.body === "string"
+        ? JSON.parse(event.body)
+        : event.body ?? {};
+
+    // Validate request
+    const params = validateRequest<UpdateCourseRequest>({
+      schema: updateCourseSchema,
       data: {
         id: event.pathParameters?.id,
+        ...body,
       },
     });
 
-    const courseId = pathParams.id;
+    const { id, ...updateBody } = params;
 
     // ObjectId check
-    if (!ObjectId.isValid(courseId)) {
+    if (!ObjectId.isValid(id)) {
       throw BadRequestError("Invalid course id format");
     }
+    
+    const updatedCourse = await updateCourse(id, updateBody);
 
-    // Parse body
-    const body =
-      typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-
-    // Validate body
-    const courseData = validateRequest<UpdateCourseBodyRequest>({
-      schema: updateCourseBodySchema,
-      data: body,
-    });
-
-    const updatedCourse = await updateCourse(courseId, courseData);
-
-    return successResponse("Course updated successfully", updatedCourse);
+    return successResponse(
+      "Course updated successfully",
+      updatedCourse
+    );
   } catch (error: any) {
     console.error("Error updating course:", error);
 

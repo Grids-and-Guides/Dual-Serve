@@ -29,7 +29,7 @@ export async function createCourseInDB(newCourse: CreateCourseInput): Promise<Co
     .collection<CourseDocument>("courses")
     .insertOne(courseWithTimestamps as any);
 
-  return { ...courseWithTimestamps, _id: result.insertedId };
+  return { ...courseWithTimestamps, id: result.insertedId };
 }
 
 export const createCourse = async (
@@ -41,5 +41,5 @@ export const createCourse = async (
   }
 
   const createdCourse = await createCourseInDB(courseData);
-  return { courseId: createdCourse._id.toHexString() };
+  return { courseId: createdCourse.id.toHexString() };
 };
