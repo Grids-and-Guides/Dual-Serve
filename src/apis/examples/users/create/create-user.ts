@@ -1,15 +1,21 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { successResponse, errorResponse, BadRequestError } from "../../../../shared/response";
-import { createUser, CreateUserInput } from "../../../../services/examples/users/create/create-user.service";
-import { createUserRequestSchema } from "./create-user.dto";
-import { validateRequest } from "@/shared/validation";
+import {
+  successResponse,
+  errorResponse,
+  BadRequestError,
+} from "../../../../shared/response";
+import { createUser } from "../../../../services/examples/users/create/create-user.service";
+import {
+  createUserRequestSchema,
+  CreateUserRequest,
+} from "./create-user.dto";
+import { validateRequest } from "../../../../shared/validation";
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   try {
-    if (!event.body) {
-      throw BadRequestError("Request body is required");
-    }
-
+    // Parse body
     const body =
       typeof event.body === "string" ? JSON.parse(event.body) : event.body;
 
@@ -17,20 +23,22 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       throw BadRequestError("Request body is required");
     }
 
-    // Validate request using Zod
-    const request = validateRequest<CreateUserInput>({
+    // Validate request
+    const request = validateRequest<CreateUserRequest>({
       schema: createUserRequestSchema,
-      data: {
-        ...body,
-      },
+      data: body,
     });
 
-    // Service call
     const result = await createUser(request);
-    return successResponse("User created successfully", result);
 
+    return successResponse("User created successfully", result);
   } catch (error: any) {
     console.error("Error creating user:", error);
-    return errorResponse(error.message ?? null, error.type ?? "Internal server error", error.statusCode ?? 500);
+
+    return errorResponse(
+      error.message ?? null,
+      error.type ?? "Internal server error",
+      error.statusCode ?? 500
+    );
   }
 };

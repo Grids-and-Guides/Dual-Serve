@@ -9,7 +9,6 @@ import { successResponse, errorResponse } from "../../../../shared/response";
 
 export const handler: Handler = async (event) => {
   try {
-    // Validate query params
     const request = validateRequest<GetListUsersRequest>({
       schema: getListUsersRequestSchema,
       data: {

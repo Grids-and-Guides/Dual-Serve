@@ -15,7 +15,6 @@ import {
 
 export const handler = async (event: APIGatewayProxyEvent) => {
   try {
-    // Validate path params
     const request = validateRequest<DeleteUserRequest>({
       schema: deleteUserRequestSchema,
       data: {
@@ -25,7 +24,6 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
     const userId = request.id;
 
-    // ObjectId check
     if (!ObjectId.isValid(userId)) {
       throw BadRequestError("Invalid user id format");
     }

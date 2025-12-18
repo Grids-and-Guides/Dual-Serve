@@ -35,10 +35,6 @@ export const handler: Handler = async (event) => {
     const body =
       typeof event.body === "string" ? JSON.parse(event.body) : event.body;
 
-    if (!body || Object.keys(body).length === 0) {
-      throw BadRequestError("Request body is required");
-    }
-
     // Validate body
     const userData = validateRequest<UpdateUserBodyRequest>({
       schema: updateUserBodySchema,
