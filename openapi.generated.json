@@ -138,7 +138,7 @@
           {
             "name": "limit",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -240,7 +240,7 @@
           {
             "name": "page",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -248,7 +248,7 @@
           {
             "name": "limit",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -256,7 +256,7 @@
           {
             "name": "search",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             }
