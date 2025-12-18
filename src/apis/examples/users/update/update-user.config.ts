@@ -7,7 +7,7 @@ const updateUserTrigger = new Trigger({
     method: "PUT",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "custom-auth"
+    authorizer: ""
   });
   
 export const updateUserFunction = new FunctionConfig({

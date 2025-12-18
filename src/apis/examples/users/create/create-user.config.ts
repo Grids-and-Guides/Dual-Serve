@@ -7,7 +7,7 @@ const createUserTrigger = new Trigger({
     method: "POST",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "custom-auth"
+    authorizer: ""
 });
 
 export const createUserFunction = new FunctionConfig({
@@ -15,7 +15,7 @@ export const createUserFunction = new FunctionConfig({
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler:"index.handler",
     srcFile: path.resolve(process.cwd(), "src/apis/examples/users/create/create-user.ts"),
-    output: path.resolve(process.cwd(), "dist/src/apis/examples/users/create/index.ts"),
+    output: path.resolve(process.cwd(), "dist/src/apis/examples/users/create/index.js"),
     memory:256,
     concurrency: 10,
     timeout:30,

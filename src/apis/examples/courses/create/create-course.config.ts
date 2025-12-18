@@ -7,7 +7,7 @@ const createCourseTrigger = new Trigger({
     method: "POST",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "custom-auth"
+    authorizer: ""
 });
 
 export const createCourseFunction = new FunctionConfig({

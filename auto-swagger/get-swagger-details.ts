@@ -142,15 +142,6 @@ export async function getSwaggerDetails(): Promise<SwaggerRoute[]> {
         ? extractZodSchemaData(schema)
         : null;
 
-      console.log("data...", {
-        endpoint,
-        method: method.toUpperCase(),
-        responseType:
-          trigger.config.responseType ?? "application/json",
-        authorizer: trigger.config.authorizer ?? "",
-        requestSchemaData: schemaData,
-      })
-
       routes.push({
         endpoint,
         method: method.toUpperCase(),

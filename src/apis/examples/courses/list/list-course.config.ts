@@ -7,7 +7,7 @@ const courseListTrigger = new Trigger({
     method: "GET",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "custom-auth"
+    authorizer: ""
   });
   
 export const courseListFunction = new FunctionConfig({
