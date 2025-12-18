@@ -2,18 +2,24 @@ import { Handler } from "aws-lambda";
 import { getUser } from "../../../../services/examples/users/get/get-user.service";
 import { BadRequestError, errorResponse, successResponse } from "../../../../shared/response";
 import { ObjectId } from "mongodb";
+import { validateRequest } from "@/shared/validation";
+import { GetUserRequest, getUserRequestSchema } from "./get-uer.dto";
 
 export const handler: Handler = async (event) => {
     try {
 
-        const userId = event.pathParameters?.id
+        const request = validateRequest<GetUserRequest>({
+            schema: getUserRequestSchema,
+            data: {
+                id: event.pathParameters?.id,
+            },
+        });
 
-        if (!userId) {
-            throw BadRequestError("User ID is required");
-        }
+        const userId = request.id;
 
+        // Mongo ObjectId check
         if (!ObjectId.isValid(userId)) {
-            throw BadRequestError('Invalid user ID format');
+            throw BadRequestError("Invalid user ID format");
         }
 
         const userData = await getUser(userId);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Request DTO (query parameters)
-export const getUsersRequestSchema = z.object({
+export const getListUsersRequestSchema = z.object({
   page: z
     .string()
     .optional()
@@ -24,4 +24,4 @@ export const getUsersRequestSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
 
-export type GetUsersRequest = z.infer<typeof getUsersRequestSchema>;
+export type GetListUsersRequest = z.infer<typeof getListUsersRequestSchema>;

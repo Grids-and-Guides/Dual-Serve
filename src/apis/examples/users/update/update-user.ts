@@ -1,37 +1,53 @@
 import { Handler } from "aws-lambda";
 import { updateUser } from "../../../../services/examples/users/update/update-user.service";
-import { successResponse, errorResponse, BadRequestError } from "../../../../shared/response";
+import {
+  successResponse,
+  errorResponse,
+  BadRequestError,
+} from "../../../../shared/response";
+import { validateRequest } from "../../../../shared/validation";
+import {
+  updateUserPathSchema,
+  updateUserBodySchema,
+  UpdateUserPathRequest,
+  UpdateUserBodyRequest,
+} from "./update-user.dto";
 import { ObjectId } from "mongodb";
 
 export const handler: Handler = async (event) => {
   try {
-    const userId = event.pathParameters?.id;
+    // Validate path params
+    const pathParams = validateRequest<UpdateUserPathRequest>({
+      schema: updateUserPathSchema,
+      data: {
+        id: event.pathParameters?.id,
+      },
+    });
 
-    // User id missing
-    if (!userId) {
-      throw BadRequestError("User id is required");
-    }
+    const userId = pathParams.id;
 
-    //Invalid ObjectId
+    // ObjectId check
     if (!ObjectId.isValid(userId)) {
       throw BadRequestError("Invalid user id format");
     }
 
-    //Parse request body (new user data)
-    if (!event.body) {
+    // Parse body
+    const body =
+      typeof event.body === "string" ? JSON.parse(event.body) : event.body;
+
+    if (!body || Object.keys(body).length === 0) {
       throw BadRequestError("Request body is required");
     }
 
-    const userData = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-
-    if (!userData) {
-      throw BadRequestError("Invalid request body");
-    }
+    // Validate body
+    const userData = validateRequest<UpdateUserBodyRequest>({
+      schema: updateUserBodySchema,
+      data: body,
+    });
 
     const updatedUser = await updateUser(userId, userData);
 
     return successResponse("User updated successfully", updatedUser);
-
   } catch (error: any) {
     console.error("Error updating user:", error);
 

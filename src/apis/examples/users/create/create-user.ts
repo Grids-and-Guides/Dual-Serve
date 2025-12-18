@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { successResponse, errorResponse, BadRequestError } from "../../../../shared/response";
 import { createUser, CreateUserInput } from "../../../../services/examples/users/create/create-user.service";
 import { createUserRequestSchema } from "./create-user.dto";
+import { validateRequest } from "@/shared/validation";
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -9,11 +10,23 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       throw BadRequestError("Request body is required");
     }
 
-    const userData: CreateUserInput = createUserRequestSchema.parse(
-      typeof event.body === "string" ? JSON.parse(event.body) : event.body
-    );
+    const body =
+      typeof event.body === "string" ? JSON.parse(event.body) : event.body;
 
-    const result = await createUser(userData);
+    if (!body || Object.keys(body).length === 0) {
+      throw BadRequestError("Request body is required");
+    }
+
+    // Validate request using Zod
+    const request = validateRequest<CreateUserInput>({
+      schema: createUserRequestSchema,
+      data: {
+        ...body,
+      },
+    });
+
+    // Service call
+    const result = await createUser(request);
     return successResponse("User created successfully", result);
 
   } catch (error: any) {

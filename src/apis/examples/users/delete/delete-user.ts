@@ -7,15 +7,25 @@ import {
   NotFoundError,
 } from "../../../../shared/response";
 import { deleteUser } from "../../../../services/examples/users/delete/delete-user.service";
+import { validateRequest } from "../../../../shared/validation";
+import {
+  deleteUserRequestSchema,
+  DeleteUserRequest,
+} from "./delete-user.dto";
 
 export const handler = async (event: APIGatewayProxyEvent) => {
   try {
-    const userId = event.pathParameters?.id;
+    // Validate path params
+    const request = validateRequest<DeleteUserRequest>({
+      schema: deleteUserRequestSchema,
+      data: {
+        id: event.pathParameters?.id,
+      },
+    });
 
-    if (!userId) {
-      throw BadRequestError("User id is required");
-    }
+    const userId = request.id;
 
+    // ObjectId check
     if (!ObjectId.isValid(userId)) {
       throw BadRequestError("Invalid user id format");
     }
@@ -27,7 +37,6 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     }
 
     return successResponse("User deleted successfully");
-
   } catch (error: any) {
     console.error("Error in delete user handler:", error);
 
