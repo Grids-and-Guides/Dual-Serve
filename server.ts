@@ -1,6 +1,8 @@
 import { Request, Response, Express } from "express";
 import express from "express"
+import fs from "fs";
 import path from "path";
+import swaggerUi from "swagger-ui-express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
@@ -8,6 +10,7 @@ import { FunctionConfig } from "osff-dsl";
 import { appStack as appConfig } from "./bin/app-config";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { generateSwagger } from "auto-swagger/generate-minimal-swagger";
 
 export const lambdaExpressAdapter =
   (getLambdaHandler: () => (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
@@ -70,9 +73,9 @@ function loadHandler(outputPath: string, handlerRef: string) {
   return module[fn] || module[obj] || module;
 }
 
-const createLazyHandler = (outputPath: string, handlerRef: string) => {  
+const createLazyHandler = (outputPath: string, handlerRef: string) => {
   return async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    
+
     const handler = loadHandler(outputPath, handlerRef);
     return handler(event);
   };
@@ -130,7 +133,7 @@ function parseCorsEnv(envValue: string | undefined) {
     return {};
   }
 }
-  
+
 function setupCors(app: Express) {
   const corsConfig = parseCorsEnv(process.env.cors);
 
@@ -170,9 +173,27 @@ async function main() {
 
   // Register the routes
   registerRoutes(app);
-  
+
   const PORT = argv.port || 8000;
   process.env.STAGE = argv.stage;
+
+  try {
+    await generateSwagger()
+
+    const swaggerPath = path.resolve(process.cwd(), "openapi.generated.json");
+
+    if (fs.existsSync(swaggerPath)) {
+      const swaggerDoc = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
+      app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+      console.log("Swagger running at /docs");
+    } else {
+      console.log("Swagger file missing");
+    }
+  } catch (err) {
+    console.error("Swagger setup failed", err);
+  }
+
+
   app.listen(PORT, () => {
     console.log(`🚀 ${process.env.STAGE} - Server running at http://localhost:${PORT}`);
   });
