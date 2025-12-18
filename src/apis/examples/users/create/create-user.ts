@@ -14,7 +14,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     );
 
     const result = await createUser(userData);
-    return successResponse("User created successfully", result);
+    return successResponse("User created successfully", result, 201);
 
   } catch (error: any) {
     console.error("Error creating user:", error);

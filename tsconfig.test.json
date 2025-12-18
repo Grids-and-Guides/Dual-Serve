@@ -1,0 +1,22 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "types": [
+            "node",
+            "jest"
+        ],
+        "module": "ESNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022"
+    },
+    "include": [
+        "tests",
+        "tests/types/global.d.ts"
+    ],
+    "baseUrl": ".",
+    "paths": {
+        "@/*": [
+            "src/*"
+        ]
+    },
+}
