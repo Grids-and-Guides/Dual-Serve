@@ -4,8 +4,8 @@ import { getSwaggerDetails } from "./get-swagger-details";
 
 type ReqField = {
   type?: any;
-  defaultValue?: string | number,
-  enumValue?: Record<string, string | number>,
+  defaultValue?: string | number;
+  enumValue?: Record<string, string | number>;
   minLength?: number | null;
   required?: boolean | null;
   in?: "path" | "query" | "body" | null;
@@ -20,13 +20,9 @@ type SwaggerItem = {
 };
 
 function getTagFromEndpoint(endpoint: string): string {
-  const clean = endpoint.startsWith("/")
-    ? endpoint.slice(1)
-    : endpoint;
-
+  const clean = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
   return clean.split("/")[0] || "General";
 }
-
 
 function convertEndpoint(endpoint: string): string {
   const normalized = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
@@ -56,11 +52,29 @@ export async function generateSwagger() {
     if (r.requestSchemaData) {
       for (const key of Object.keys(r.requestSchemaData)) {
         const field = r.requestSchemaData[key];
-        const schema: any = { type: field.type };
 
-        if (field.minLength) schema.minLength = field.minLength;
-        if (field.defaultValue !== undefined) schema.default = field.defaultValue;
-        if (field.enumValue) schema.enum = Object.values(field.enumValue);
+        // Build schema object with only meaningful values
+        const schema: any = {};
+
+        // Add type
+        if (field.type !== undefined && field.type !== null) {
+          schema.type = field.type;
+        }
+
+        // Only add minLength if it's greater than 0
+        if (field.minLength && field.minLength > 0) {
+          schema.minLength = field.minLength;
+        }
+
+        // Only add default if it exists
+        if (field.defaultValue !== undefined) {
+          schema.default = field.defaultValue;
+        }
+
+        // Only add enum if it exists
+        if (field.enumValue) {
+          schema.enum = Object.values(field.enumValue);
+        }
 
         if (field.in === "path") {
           parameters.push({
@@ -85,7 +99,6 @@ export async function generateSwagger() {
 
     const operation: any = {
       tags: [tagName],
-      parameters,
       responses: {
         200: {
           description: "Success",
@@ -98,9 +111,29 @@ export async function generateSwagger() {
       },
     };
 
+    // Only add parameters if there are any
+    if (parameters.length > 0) {
+      operation.parameters = parameters;
+    }
+
+    // Only add requestBody if there are body properties
+    if (Object.keys(bodyProps).length > 0) {
+      operation.requestBody = {
+        required: bodyRequired.length > 0,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: bodyProps,
+              ...(bodyRequired.length > 0 && { required: bodyRequired }),
+            },
+          },
+        },
+      };
+    }
+
     paths[openPath][method] = operation;
   }
-
 
   // Final OpenAPI Specification Object
   const openapi = {
@@ -122,7 +155,8 @@ export async function generateSwagger() {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
-          description: "Enter your authorization token to access protected routes.",
+          description:
+            "Enter your authorization token to access protected routes.",
         },
       },
     },
@@ -136,16 +170,12 @@ export async function generateSwagger() {
       fs.unlinkSync(outFile);
     }
 
-    fs.writeFileSync(
-      outFile,
-      JSON.stringify(openapi, null, 2),
-      { encoding: "utf-8" }
-    );
+    fs.writeFileSync(outFile, JSON.stringify(openapi, null, 2), {
+      encoding: "utf-8",
+    });
 
     console.log(`Swagger file generated at: ${outFile}`);
   } catch (err) {
     console.error("Failed to generate Swagger file", err);
   }
-  fs.writeFileSync(outFile, JSON.stringify(openapi, null, 2));
-  console.log(`Swagger file generated at: ${outFile}`);
 }

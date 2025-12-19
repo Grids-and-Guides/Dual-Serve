@@ -22,11 +22,134 @@
     }
   },
   "paths": {
-    "/users": {
+    "/courses/{id}": {
       "get": {
         "tags": [
-          "users"
+          "courses"
         ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "courses"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "thumbnail": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": "number"
+                  },
+                  "price": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "courses"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/courses": {
+      "get": {
+        "tags": [
+          "courses"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "page",
@@ -34,7 +157,7 @@
             "required": false,
             "schema": {
               "type": "number",
-              "default": 4
+              "default": 1
             }
           },
           {
@@ -43,7 +166,7 @@
             "required": false,
             "schema": {
               "type": "number",
-              "default": 60
+              "default": 10
             }
           },
           {
@@ -59,7 +182,13 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "enum"
+              "type": "enum",
+              "enum": [
+                "title",
+                "duration",
+                "price",
+                "createdAt"
+              ]
             }
           },
           {
@@ -67,9 +196,18 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "enum"
+              "type": "enum",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           }
+        ]
+      },
+      "post": {
+        "tags": [
+          "courses"
         ],
         "responses": {
           "200": {
@@ -78,17 +216,267 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 10
+                  },
+                  "thumbnail": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "duration": {
+                    "type": "number"
+                  },
+                  "price": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "thumbnail",
+                  "duration",
+                  "price"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "enum",
+              "enum": [
+                "name",
+                "lastName",
+                "email",
+                "mobileNumber",
+                "age",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "enum",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "hari"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "mobileNumber": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "age": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "lastName",
+                  "email",
+                  "mobileNumber",
+                  "age"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "mobileNumber": {
+                    "type": "string"
+                  },
+                  "age": {
+                    "type": "number"
+                  }
                 }
               }
             }
           }
         }
       },
-      "post": {
+      "delete": {
         "tags": [
           "users"
         ],
-        "parameters": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -100,7 +488,18 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
       }
     }
   }

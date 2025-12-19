@@ -3,7 +3,8 @@ import { z } from "zod";
 export const createUserRequestSchema = z.object({
   name: z
     .string({ message: "First name is required" })
-    .min(1, { message: "First name is required" }),
+    .min(1, { message: "First name is required" })
+    .default("hari"),
 
   lastName: z
     .string({ message: "Last name is required" })

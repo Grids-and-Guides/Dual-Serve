@@ -13,13 +13,13 @@ export enum SortOrder {
 }
 
 export const getCoursesRequestSchema = z.object({
-  page: z
+  page: z.coerce
     .number()
     .optional()
     .default(1)
     .meta({ in: "query" }),
 
-  limit: z
+  limit: z.coerce
     .number()
     .optional()
     .default(10)

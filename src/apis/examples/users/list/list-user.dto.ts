@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-
-//   ENUMS
+/* ======================
+   ENUMS
+====================== */
 
 export enum UserSortBy {
   NAME = "name",
@@ -17,19 +18,22 @@ export enum SortOrder {
   DESC = "desc",
 }
 
-//   REQUEST SCHEMA
+/* ======================
+   REQUEST SCHEMA
+====================== */
 
 export const getListUsersRequestSchema = z.object({
-  page: z
+  page: z.coerce
     .number()
-    .optional()
-    .default(4)
+    .min(1)
+    .default(1)
     .meta({ in: "query" }),
 
-  limit: z
+  limit: z.coerce
     .number()
-    .optional()
-    .default(60)
+    .min(1)
+    .max(100)
+    .default(10)
     .meta({ in: "query" }),
 
   search: z
@@ -48,7 +52,9 @@ export const getListUsersRequestSchema = z.object({
     .meta({ in: "query" }),
 });
 
-//   TYPE
+/* ======================
+   TYPE
+====================== */
 
 export type GetListUsersRequest = z.infer<
   typeof getListUsersRequestSchema

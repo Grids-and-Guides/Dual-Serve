@@ -1,11 +1,13 @@
 import path from "path";
 
-//   TYPES
+/* ======================
+   TYPES
+====================== */
 
 type FieldInfo = {
   type?: string | null;
-  defaultValue?: string | number,
-  enumValue?: Record<string, string | number>,
+  defaultValue?: string | number;
+  enumValue?: Record<string, string | number>;
   minLength?: number | null;
   required?: boolean | null;
   in?: "path" | "query" | "body" | null;
@@ -21,12 +23,13 @@ type SwaggerRoute = {
   requestSchemaData: SchemaInfo | null;
 };
 
-//   META READER
+/* ======================
+   META READER
+====================== */
 
 function readMeta(
   field: any
 ): { in?: "path" | "query" | "body" } | null {
-
   let current = field;
 
   while (current) {
@@ -44,61 +47,105 @@ function readMeta(
   return null;
 }
 
-//   ZOD SCHEMA READER
+/* ======================
+   ZOD UNWRAP HELPER
+====================== */
+
+function unwrapZod(field: any): {
+  type: string | null;
+  defaultValue?: string | number;
+  enumValue?: Record<string, string | number>;
+  minLength?: number | null;
+} {
+  let current = field;
+
+  let defaultValue: string | number | undefined;
+  let enumValue: Record<string, string | number> | undefined;
+  let minLength: number | null = null;
+
+  while (current) {
+    // default()
+    if (current.def?.type === "default") {
+      defaultValue = current.def.defaultValue;
+    }
+
+    // enum
+    if (current.enum) {
+      enumValue = current.enum;
+    }
+
+    // string min length
+    if (typeof current.minLength === "number") {
+      minLength = current.minLength;
+    }
+
+    // base type reached
+    if (
+      current.type &&
+      !["optional", "default", "nullable"].includes(current.type)
+    ) {
+      return {
+        type: current.type,
+        defaultValue,
+        enumValue,
+        minLength,
+      };
+    }
+
+    current =
+      current.def?.innerType ||
+      current.def?.schema ||
+      null;
+  }
+
+  return {
+    type: null,
+    defaultValue,
+    enumValue,
+    minLength,
+  };
+}
+
+/* ======================
+   ZOD SCHEMA READER
+====================== */
+
 function extractZodSchemaData(schema: any): SchemaInfo | null {
   try {
-
-    const shape = schema.def.shape ?? null;
-
+    const shape = schema?.def?.shape ?? null;
     if (!shape) return null;
 
     const result: SchemaInfo = {};
 
     for (const fieldName of Object.keys(shape)) {
       const zodField = shape[fieldName];
-      console.log("zodField...",zodField)
 
       const meta = readMeta(zodField);
-
       const location = meta?.in ?? "body";
 
-      let current = zodField;
+      const required = !zodField.isOptional();
 
-      let required = true;
-      let isOptional: boolean = zodField.isOptional()
-      if (isOptional) {
-        required = false;
-      }
+      const unwrapped = unwrapZod(zodField);
 
-      let defaultValue;
-      if (zodField?.def?.defaultValue) {
-        defaultValue = zodField?.def?.defaultValue
-        console.log("defaultValue...",defaultValue)
-      }
-
-      let enumValue;
-      if (zodField?.def?.innerType?.enum) {
-        enumValue = zodField.def.innerType.enum;
-      }
-
-      let type;
-      if (zodField.def.type === "optional") {
-        type = zodField.def.innerType.type //query
-      } else {
-        type = zodField.def.type //path,body
-      }
-
-      const minLength = current?.minLength ?? 0
-
-
-      result[fieldName] = {
-        type,
-        defaultValue,
-        enumValue,
-        minLength,
+      const fieldInfo: FieldInfo = {
+        type: unwrapped.type,
         required,
         in: location,
       };
+
+      if (unwrapped.defaultValue !== undefined) {
+        fieldInfo.defaultValue = unwrapped.defaultValue;
+      }
+
+      if (unwrapped.enumValue !== undefined) {
+        fieldInfo.enumValue = unwrapped.enumValue;
+      }
+
+      if (unwrapped.minLength !== null) {
+        fieldInfo.minLength = unwrapped.minLength;
+      }
+
+      result[fieldName] = fieldInfo;
     }
 
     return result;
@@ -108,16 +155,14 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
   }
 }
 
-// MAIN FUNCTION
+/* ======================
+   MAIN FUNCTION
+====================== */
 
 export async function getSwaggerDetails(): Promise<SwaggerRoute[]> {
   const routes: SwaggerRoute[] = [];
 
-  const configPath = path.resolve(
-    process.cwd(),
-    "bin/app-config.ts"
-  );
-
+  const configPath = path.resolve(process.cwd(), "bin/app-config.ts");
   const importedConfig = await import(configPath);
   const appStack = importedConfig.appStack;
 
@@ -138,29 +183,25 @@ export async function getSwaggerDetails(): Promise<SwaggerRoute[]> {
         ? trigger.config.endpoint
         : "/" + trigger.config.endpoint;
 
-
       const schema = trigger.config.requestSchema ?? null;
-
-      const schemaData = schema
-        ? extractZodSchemaData(schema)
-        : null;
+      const schemaData = schema ? extractZodSchemaData(schema) : null;
 
       routes.push({
         endpoint,
         method: method.toUpperCase(),
-        responseType:
-          trigger.config.responseType ?? "application/json",
+        responseType: trigger.config.responseType ?? "application/json",
         authorizer: trigger.config.authorizer ?? "",
         requestSchemaData: schemaData,
       });
     }
   }
 
-
   return routes;
 }
 
-//  DEBUG RUN
+/* ======================
+   DEBUG RUN
+====================== */
 
 if (require.main === module) {
   getSwaggerDetails().then((r) => {
