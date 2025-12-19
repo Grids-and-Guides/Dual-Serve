@@ -85,7 +85,7 @@ export async function generateSwagger() {
 
     const operation: any = {
       tags: [tagName],
-        ,
+      parameters,
       responses: {
         200: {
           description: "Success",
