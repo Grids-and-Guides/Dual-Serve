@@ -23,11 +23,13 @@ export const getListUsersRequestSchema = z.object({
   page: z
     .number()
     .optional()
+    .default(4)
     .meta({ in: "query" }),
 
   limit: z
     .number()
     .optional()
+    .default(60)
     .meta({ in: "query" }),
 
   search: z

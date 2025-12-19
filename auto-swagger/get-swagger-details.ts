@@ -56,6 +56,7 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
 
     for (const fieldName of Object.keys(shape)) {
       const zodField = shape[fieldName];
+      console.log("zodField...",zodField)
 
       const meta = readMeta(zodField);
 
@@ -72,6 +73,7 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
       let defaultValue;
       if (zodField?.def?.defaultValue) {
         defaultValue = zodField?.def?.defaultValue
+        console.log("defaultValue...",defaultValue)
       }
 
       let enumValue;
@@ -79,9 +81,15 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
         enumValue = zodField.def.innerType.enum;
       }
 
-      const type = zodField?.def?.innerType?.type;
+      let type;
+      if (zodField.def.type === "optional") {
+        type = zodField.def.innerType.type //query
+      } else {
+        type = zodField.def.type //path,body
+      }
 
       const minLength = current?.minLength ?? 0
+
 
       result[fieldName] = {
         type,
