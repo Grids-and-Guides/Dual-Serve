@@ -3,7 +3,7 @@ import request from "supertest";
 
 const api = request("http://localhost:8000");
 describe("Create User API", () => {
-  let payload: any = {
+  let payload = {
       name: "israel",
       lastName: "isaac",
       email: "israel@mail.com",

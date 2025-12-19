@@ -16,7 +16,7 @@ export const handler = async (
     );
 
     const result = await createCourse(courseData);
-    return successResponse("Course created successfully", result);
+    return successResponse("Course created successfully", result, 201);
 
   } catch (error: any) {
     console.error("Error creating course:", error);
