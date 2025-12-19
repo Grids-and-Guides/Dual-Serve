@@ -72,16 +72,17 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
       let current = zodField;
 
       let required = true;
-
-      // unwrap optional / nullable
-      if (zodField?.def?.type === "optional") {
+      let isOptional: boolean = zodField.isOptional()
+      if (isOptional) {
         required = false;
       }
+
 
       // now current is real schema (ZodString / ZodEnum)
       const schema = current;
 
-      const type = schema.type ?? "string";
+      const type = schema?.def?.type;
+      console.log("type...", type)
 
       const minLength = schema?.minLength ?? 0
 
