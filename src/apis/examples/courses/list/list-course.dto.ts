@@ -2,16 +2,20 @@ import { z } from "zod";
 
 export const getCoursesRequestSchema = z.object({
   page: z
-    .number() 
+    .number()
+    .optional()
+    .default(1)
     .meta({ in: "query" }),
 
   limit: z
     .number()
     .optional()
+    .default(10)
     .meta({ in: "query" }),
 
   search: z
     .string()
+    .optional()
     .meta({ in: "query" }),
 
   sortBy: z

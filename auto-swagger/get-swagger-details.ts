@@ -6,6 +6,7 @@ import path from "path";
 
 type FieldInfo = {
   type?: string | null;
+  defaultValue:string | number ,
   minLength?: number | null;
   required?: boolean | null;
   in?: "path" | "query" | "body" | null;
@@ -77,18 +78,19 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
         required = false;
       }
 
+      const defaultValue = zodField?.def?.defaultValue || null
 
       // now current is real schema (ZodString / ZodEnum)
       const schema = current;
 
-      const type = schema?.def?.type;
-      console.log("type...", type)
+      const type = zodField?.def?.innerType?.type;
 
       const minLength = schema?.minLength ?? 0
 
 
       result[fieldName] = {
-        type: type,
+        type,
+        defaultValue,
         minLength,
         required,
         in: location,

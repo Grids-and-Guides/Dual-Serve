@@ -3,7 +3,8 @@ import path from "path";
 import { getSwaggerDetails } from "./get-swagger-details";
 
 type ReqField = {
-  type?: string | null;
+  type?: any;
+  defaultValue: string | number,
   minLength?: number | null;
   required?: boolean | null;
   in?: "path" | "query" | "body" | null;
@@ -23,26 +24,6 @@ type SwaggerItem = {
 function convertEndpoint(endpoint: string): string {
   const normalized = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
   return normalized.replace(/:(\w+)/g, "{$1}");
-}
-
-/**
- * Maps Zod type names to OpenAPI types
- */
-function mapType(zodType?: string | null): string {
-  switch (zodType) {
-    case "ZodString":
-      return "string";
-    case "ZodNumber":
-      return "number";
-    case "ZodBoolean":
-      return "boolean";
-    case "ZodArray":
-      return "array";
-    case "ZodObject":
-      return "object";
-    default:
-      return "string";
-  }
 }
 
 export async function generateSwagger() {
@@ -68,9 +49,13 @@ export async function generateSwagger() {
     if (r.requestSchemaData) {
       for (const key of Object.keys(r.requestSchemaData)) {
         const field = r.requestSchemaData[key];
-        const schema: any = { type: mapType(field.type) };
+        const schema: any = { type: field.type };
 
         if (field.minLength) schema.minLength = field.minLength;
+
+        if (field.defaultValue !== undefined) {
+          schema.default = field.defaultValue;
+        }
 
         if (field.in === "path") {
           parameters.push({
