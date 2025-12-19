@@ -1,6 +1,7 @@
-import { CourseDocument } from "../../../../schema/courses.schema";
-import { connectToDatabase } from "../../../../shared/database";
-import { NotFoundError } from "../../../../shared/response";
+import { ListResponse } from "@/shared/global-types";
+import { CourseDocument } from "@/schema/courses.schema";
+import { connectToDatabase } from "@/shared/database";
+import { NotFoundError } from "@/shared/response";
 
 export interface CourseData {
   title: string;
@@ -12,11 +13,7 @@ export interface CourseData {
   updatedAt: Date;
 }
 
-export interface GetAllCoursesResponse {
-  totalCount: number;
-  pageNumber: number;
-  pageLimit: number;
-  totalPages: number;
+export interface GetAllCoursesResponse extends ListResponse {
   data: CourseData[];
 }
 
