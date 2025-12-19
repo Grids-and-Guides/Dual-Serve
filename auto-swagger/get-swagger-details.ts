@@ -1,12 +1,11 @@
 import path from "path";
 
-/* ======================
-   TYPES
-====================== */
+//   TYPES
 
 type FieldInfo = {
   type?: string | null;
-  defaultValue:string | number ,
+  defaultValue?: string | number,
+  enumValue?: Record<string, string | number>,
   minLength?: number | null;
   required?: boolean | null;
   in?: "path" | "query" | "body" | null;
@@ -22,9 +21,7 @@ type SwaggerRoute = {
   requestSchemaData: SchemaInfo | null;
 };
 
-/* ======================
-   META READER
-====================== */
+//   META READER
 
 function readMeta(
   field: any
@@ -47,13 +44,7 @@ function readMeta(
   return null;
 }
 
-
-
-
-/* ======================
-   ZOD SCHEMA READER
-====================== */
-
+//   ZOD SCHEMA READER
 function extractZodSchemaData(schema: any): SchemaInfo | null {
   try {
 
@@ -78,19 +69,24 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
         required = false;
       }
 
-      const defaultValue = zodField?.def?.defaultValue || null
+      let defaultValue;
+      if (zodField?.def?.defaultValue) {
+        defaultValue = zodField?.def?.defaultValue
+      }
 
-      // now current is real schema (ZodString / ZodEnum)
-      const schema = current;
+      let enumValue;
+      if (zodField?.def?.innerType?.enum) {
+        enumValue = zodField.def.innerType.enum;
+      }
 
       const type = zodField?.def?.innerType?.type;
 
-      const minLength = schema?.minLength ?? 0
-
+      const minLength = current?.minLength ?? 0
 
       result[fieldName] = {
         type,
         defaultValue,
+        enumValue,
         minLength,
         required,
         in: location,
@@ -104,9 +100,7 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
   }
 }
 
-/* ======================
-   MAIN FUNCTION
-====================== */
+// MAIN FUNCTION
 
 export async function getSwaggerDetails(): Promise<SwaggerRoute[]> {
   const routes: SwaggerRoute[] = [];
@@ -158,9 +152,7 @@ export async function getSwaggerDetails(): Promise<SwaggerRoute[]> {
   return routes;
 }
 
-/* ======================
-   DEBUG RUN
-====================== */
+//  DEBUG RUN
 
 if (require.main === module) {
   getSwaggerDetails().then((r) => {

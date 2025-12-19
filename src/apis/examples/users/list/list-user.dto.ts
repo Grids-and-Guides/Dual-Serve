@@ -1,29 +1,53 @@
 import { z } from "zod";
 
+
+//   ENUMS
+
+export enum UserSortBy {
+  NAME = "name",
+  LAST_NAME = "lastName",
+  EMAIL = "email",
+  MOBILE_NUMBER = "mobileNumber",
+  AGE = "age",
+  CREATED_AT = "createdAt",
+}
+
+export enum SortOrder {
+  ASC = "asc",
+  DESC = "desc",
+}
+
+//   REQUEST SCHEMA
+
 export const getListUsersRequestSchema = z.object({
-  page: z.number().optional().meta({ in: "query" }),
+  page: z
+    .number()
+    .optional()
+    .meta({ in: "query" }),
 
-  limit: z.number().optional().meta({ in: "query" }),
+  limit: z
+    .number()
+    .optional()
+    .meta({ in: "query" }),
 
-  search: z.string().optional().meta({ in: "query" }),
+  search: z
+    .string()
+    .optional()
+    .meta({ in: "query" }),
 
   sortBy: z
-    .enum([
-      "name",
-      "lastName",
-      "email",
-      "mobileNumber",
-      "age",
-      "createdAt",
-    ])
+    .nativeEnum(UserSortBy)
     .optional()
     .meta({ in: "query" }),
 
   sortOrder: z
-    .enum(["asc", "desc"])
+    .nativeEnum(SortOrder)
     .optional()
     .meta({ in: "query" }),
 });
 
-export type GetListUsersRequest =
-  z.infer<typeof getListUsersRequestSchema>;
+//   TYPE
+
+export type GetListUsersRequest = z.infer<
+  typeof getListUsersRequestSchema
+>;

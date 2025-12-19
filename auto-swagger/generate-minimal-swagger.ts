@@ -4,7 +4,8 @@ import { getSwaggerDetails } from "./get-swagger-details";
 
 type ReqField = {
   type?: any;
-  defaultValue: string | number,
+  defaultValue?: string | number,
+  enumValue?: Record<string, string | number>,
   minLength?: number | null;
   required?: boolean | null;
   in?: "path" | "query" | "body" | null;
@@ -18,9 +19,15 @@ type SwaggerItem = {
   requestSchemaData: Record<string, ReqField> | null;
 };
 
-/**
- * Converts colon-based parameters (:orgid) to curly braces ({orgid})
- */
+function getTagFromEndpoint(endpoint: string): string {
+  const clean = endpoint.startsWith("/")
+    ? endpoint.slice(1)
+    : endpoint;
+
+  return clean.split("/")[0] || "General";
+}
+
+
 function convertEndpoint(endpoint: string): string {
   const normalized = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
   return normalized.replace(/:(\w+)/g, "{$1}");
@@ -38,6 +45,7 @@ export async function generateSwagger() {
   for (const r of routes as SwaggerItem[]) {
     const openPath = convertEndpoint(r.endpoint);
     const method = r.method.toLowerCase();
+    const tagName: string = getTagFromEndpoint(r.endpoint);
 
     if (!paths[openPath]) paths[openPath] = {};
 
@@ -45,17 +53,14 @@ export async function generateSwagger() {
     const bodyProps: Record<string, any> = {};
     const bodyRequired: string[] = [];
 
-    // Parse Schema Data
     if (r.requestSchemaData) {
       for (const key of Object.keys(r.requestSchemaData)) {
         const field = r.requestSchemaData[key];
         const schema: any = { type: field.type };
 
         if (field.minLength) schema.minLength = field.minLength;
-
-        if (field.defaultValue !== undefined) {
-          schema.default = field.defaultValue;
-        }
+        if (field.defaultValue !== undefined) schema.default = field.defaultValue;
+        if (field.enumValue) schema.enum = Object.values(field.enumValue);
 
         if (field.in === "path") {
           parameters.push({
@@ -71,16 +76,16 @@ export async function generateSwagger() {
             required: !!field.required,
             schema,
           });
-        } else if (field.in === "body" || field.in == null) {
+        } else {
           bodyProps[key] = schema;
           if (field.required) bodyRequired.push(key);
         }
       }
     }
 
-    // Build Operation Object
     const operation: any = {
-      parameters,
+      tags: [tagName],
+        ,
       responses: {
         200: {
           description: "Success",
@@ -93,35 +98,9 @@ export async function generateSwagger() {
       },
     };
 
-    // Add Request Body if needed
-    if (Object.keys(bodyProps).length) {
-      operation.requestBody = {
-        required: bodyRequired.length > 0,
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: bodyProps,
-              ...(bodyRequired.length ? { required: bodyRequired } : {}),
-            },
-          },
-        },
-      };
-    }
-
-    /**
-     * AUTHENTICATION LOGIC
-     */
-    if (r.authorizer) {
-      operation.security = [
-        {
-          BearerAuth: [],
-        },
-      ];
-    }
-
     paths[openPath][method] = operation;
   }
+
 
   // Final OpenAPI Specification Object
   const openapi = {

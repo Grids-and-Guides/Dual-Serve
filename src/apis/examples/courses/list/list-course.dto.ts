@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+export enum CourseSortBy {
+  TITLE = "title",
+  DURATION = "duration",
+  PRICE = "price",
+  CREATED_AT = "createdAt",
+}
+
+export enum SortOrder {
+  ASC = "asc",
+  DESC = "desc",
+}
+
 export const getCoursesRequestSchema = z.object({
   page: z
     .number()
@@ -19,15 +31,16 @@ export const getCoursesRequestSchema = z.object({
     .meta({ in: "query" }),
 
   sortBy: z
-    .enum(["title", "duration", "price", "createdAt"])
+    .enum(CourseSortBy)
     .optional()
     .meta({ in: "query" }),
 
   sortOrder: z
-    .enum(["asc", "desc"])
+    .enum(SortOrder)
     .optional()
     .meta({ in: "query" }),
 });
+
 
 export type GetCoursesRequest =
   z.infer<typeof getCoursesRequestSchema>;
