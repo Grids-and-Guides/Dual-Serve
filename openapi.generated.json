@@ -22,117 +22,16 @@
     }
   },
   "paths": {
-    "/courses/{id}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "thumbnail": {
-                    "type": "string"
-                  },
-                  "duration": {
-                    "type": "string"
-                  },
-                  "price": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/courses": {
       "get": {
         "parameters": [
           {
             "name": "page",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string"
+              "type": "optional",
+              "default": 1
             }
           },
           {
@@ -140,117 +39,8 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sortBy",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sortOrder",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "description": {
-                    "type": "string",
-                    "minLength": 10
-                  },
-                  "thumbnail": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "duration": {
-                    "type": "string"
-                  },
-                  "price": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "title",
-                  "description",
-                  "thumbnail",
-                  "duration",
-                  "price"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users": {
-      "get": {
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
+              "type": "optional",
+              "default": 10
             }
           },
           {
@@ -258,7 +48,8 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": null
             }
           },
           {
@@ -266,7 +57,8 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "enum",
+              "default": null
             }
           },
           {
@@ -274,163 +66,8 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "mobileNumber": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "age": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name",
-                  "lastName",
-                  "email",
-                  "mobileNumber",
-                  "age"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/{id}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "lastName": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "mobileNumber": {
-                    "type": "string"
-                  },
-                  "age": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 1
+              "type": "enum",
+              "default": null
             }
           }
         ],
