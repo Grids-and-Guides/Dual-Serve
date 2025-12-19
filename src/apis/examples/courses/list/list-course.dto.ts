@@ -2,11 +2,11 @@ import { z } from "zod";
 
 export const getCoursesRequestSchema = z.object({
   page: z
-    .string() 
+    .number() 
     .meta({ in: "query" }),
 
   limit: z
-    .string()
+    .number()
     .optional()
     .meta({ in: "query" }),
 

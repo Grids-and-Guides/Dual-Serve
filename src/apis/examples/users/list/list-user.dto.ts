@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const getListUsersRequestSchema = z.object({
-  page: z.string().optional().meta({ in: "query" }),
+  page: z.number().optional().meta({ in: "query" }),
 
-  limit: z.string().optional().meta({ in: "query" }),
+  limit: z.number().optional().meta({ in: "query" }),
 
   search: z.string().optional().meta({ in: "query" }),
 
