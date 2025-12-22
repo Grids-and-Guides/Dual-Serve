@@ -111,6 +111,16 @@ export async function generateSwagger() {
       },
     };
 
+    // 🔐 ADD THIS PART
+    if (r.authorizer === "custom-auth") {
+      operation.security = [
+        {
+          BearerAuth: [],
+        },
+      ];
+    }
+
+
     // Only add parameters if there are any
     if (parameters.length > 0) {
       operation.parameters = parameters;

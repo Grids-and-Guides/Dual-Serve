@@ -12,6 +12,7 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
+    console.log("Received event:", JSON.stringify(event));
     // Parse body
     const body =
       typeof event.body === "string" ? JSON.parse(event.body) : event.body;
