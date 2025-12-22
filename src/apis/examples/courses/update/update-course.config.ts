@@ -8,7 +8,7 @@ const updateCourseTrigger = new Trigger({
     method: "PUT",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "",
+    authorizer: "custom-auth",
     requestSchema:updateCourseSchema
   });
   

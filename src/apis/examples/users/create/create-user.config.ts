@@ -8,7 +8,7 @@ const createUserTrigger = new Trigger({
     method: "POST",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "",
+    authorizer: "custom-auth",
     requestSchema:createUserRequestSchema
 });
 

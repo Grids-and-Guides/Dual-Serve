@@ -8,7 +8,7 @@ const deleteCourseTrigger = new Trigger({
     method: "DELETE",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "",
+    authorizer: "custom-auth",
     requestSchema:deleteCourseRequestSchema
   });
   
