@@ -66,6 +66,11 @@
             }
           }
         },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -121,6 +126,11 @@
             }
           }
         },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -355,6 +365,11 @@
             }
           }
         },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -439,6 +454,11 @@
             }
           }
         },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -494,6 +514,11 @@
             }
           }
         },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
