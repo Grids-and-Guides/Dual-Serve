@@ -1,6 +1,7 @@
-import { UserDocument } from "../../../../schema/users.schema";
-import { connectToDatabase } from "../../../../shared/database";
-import { NotFoundError } from "../../../../shared/response";
+import { ListResponse } from "@/shared/global-types";
+import { UserDocument } from "@/schema/users.schema";
+import { connectToDatabase } from "@/shared/database";
+import { NotFoundError } from "@/shared/response";
 
 export interface UserData {
   name: string;
@@ -12,11 +13,7 @@ export interface UserData {
   updatedAt: Date;
 }
 
-export interface GetAllUsersResponse {
-  totalCount: number;
-  pageNumber: number;
-  pageLimit: number;
-  totalPages: number;
+export interface GetAllUsersResponse extends ListResponse {
   data: UserData[];
 }
 
