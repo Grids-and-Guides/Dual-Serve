@@ -12,6 +12,13 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { generateSwagger } from "auto-swagger/generate-minimal-swagger";
 
+// AUTHORIZER REGISTRY (ADD ONLY)
+const authorizersMap = new Map<string, FunctionConfig>();
+
+for (const auth of appConfig.config.authorizer || []) {
+  authorizersMap.set(auth.config.name, auth.config.authFunction);
+}
+
 export const lambdaExpressAdapter =
   (getLambdaHandler: () => (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
     async (req: Request, res: Response) => {
@@ -81,6 +88,44 @@ const createLazyHandler = (outputPath: string, handlerRef: string) => {
   };
 };
 
+function buildAuthorizerEvent(req: Request) {
+  return {
+    type: "TOKEN",
+    authorizationToken: req.headers["authorization"] || "",
+    methodArn: `arn:aws:execute-api:us-east-1:123456789012:abcdef123/dev/${req.method}${req.path}`,
+  };
+}
+
+function authorizerMiddleware(
+  authorizerFunc: (event: any) => Promise<any>
+) {
+  return async (req: Request, res: Response, next: Function) => {
+    try {
+      const event = buildAuthorizerEvent(req);
+      const authResult = await authorizerFunc(event);
+
+      const effect =
+        authResult?.policyDocument?.Statement?.[0]?.Effect;
+
+      if (effect === "Allow") {
+        return next();
+      }
+
+      return res.status(401).json({ message: "Unauthorized" });
+    } catch (err) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+  };
+}
+
+const createLazyAuthorizer = (outputPath: string, handlerRef: string) => {
+  return async (event: any) => {
+    const handler = loadHandler(outputPath, handlerRef);
+    return handler(event);
+  };
+};
+
+
 export const registerRoutes = async (app: Express) => {
   const stage = argv.stage;
   console.log("stage: ", stage)
@@ -104,7 +149,27 @@ export const registerRoutes = async (app: Express) => {
       const lazyHandler = createLazyHandler(handlerPath, func.config.handler);
 
       console.log(`Mounting [${method.toUpperCase()}] ${route}`);
-      (app as any)[method](route, lambdaExpressAdapter(() => lazyHandler));
+
+      const middlewares: any[] = [];
+
+      // ADD AUTHORIZER ONLY IF CONFIGURED
+      if (trigger.config.authorizer && authorizersMap.has(trigger.config.authorizer)) {
+        const authFunc = authorizersMap.get(trigger.config.authorizer)!;
+        const authPath = isTsNode()
+          ? authFunc.config.srcFile
+          : authFunc.config.output;
+
+        const lazyAuth = createLazyAuthorizer(
+          authPath,
+          authFunc.config.handler
+        );
+        middlewares.push(authorizerMiddleware(lazyAuth));
+      }
+
+      middlewares.push(lambdaExpressAdapter(() => lazyHandler));
+
+      (app as any)[method](route, ...middlewares);
+
     }
   }
   console.timeEnd("Route Registration");
