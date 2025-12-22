@@ -1,5 +1,5 @@
 {
-    "app": "npx ts-node --prefer-ts-exts bin/lambda-cdk.ts",
+    "app": "node -r tsconfig-paths/register -r ts-node/register bin/lambda-cdk.ts",
     "watch": {
       "include": [
         "**"

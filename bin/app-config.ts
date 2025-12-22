@@ -1,24 +1,25 @@
 import { ApiGateway, AppStack, Authorizer, FunctionConfig, getState, Stage, Vpc, WebsocketApi } from "osff-dsl";
 import path from "path";
+import { healthCheckFunction } from "@/api/http/health-check/health-check.config";
 
-import { courseGetFunction } from "../src/apis/examples/courses/get/get-course.config"
-import { courseListFunction } from "../src/apis/examples/courses/list/list-course.config"
-import { usersListFunction } from "../src/apis/examples/users/list/list-user.config"
-import { createUserFunction } from "@/apis/examples/users/create/create-user.config";
-import { getUserFunction } from "@/apis/examples/users/get/get-user.config";
-import { updateUserFunction } from "@/apis/examples/users/update/update-user.config";
-import { deleteUserFunction } from "@/apis/examples/users/delete/delete-user.config";
-import { createCourseFunction } from "@/apis/examples/courses/create/create-course.config";
-import { updateCourseFunction } from "@/apis/examples/courses/update/update-course.config";
-import { deleteCourseFunction } from "@/apis/examples/courses/delete/delete-course.config";
+import { courseGetFunction } from "@/api/examples/courses/get/get-course.config"
+import { courseListFunction } from "@/api/examples/courses/list/list-course.config"
+import { usersListFunction } from "@/api/examples/users/list/list-user.config"
+import { createUserFunction } from "@/api/examples/users/create/create-user.config";
+import { getUserFunction } from "@/api/examples/users/get/get-user.config";
+import { updateUserFunction } from "@/api/examples/users/update/update-user.config";
+import { deleteUserFunction } from "@/api/examples/users/delete/delete-user.config";
+import { createCourseFunction } from "@/api/examples/courses/create/create-course.config";
+import { updateCourseFunction } from "@/api/examples/courses/update/update-course.config";
+import { deleteCourseFunction } from "@/api/examples/courses/delete/delete-course.config";
 
 // Create object instances
 const authFunction = new FunctionConfig({
     name: "auth-${self.stage}",
     runtime: "lambda.Runtime.NODEJS_22_X",
     handler: "index.handler",
-    srcFile: "src/apis/examples/authorizer.ts",
-    output: path.resolve(process.cwd(), "dist/src/apis/examples/authorizer.js"),
+    srcFile: "src/api/examples/authorizer.ts",
+    output: path.resolve(process.cwd(), "dist/src/api/examples/authorizer.js"),
     memory: 256,
     concurrency: 10,
     timeout: 30,
@@ -68,7 +69,8 @@ export const appStack = new AppStack({
       deleteUserFunction,
       createCourseFunction,
       updateCourseFunction,
-      deleteCourseFunction,
+      deleteCourseFunction, 
+      healthCheckFunction
     ]
   }
   );
