@@ -222,6 +222,30 @@ function loadEnvironments(stage: string) {
   dotenv.config({ path: envPath });
 }
 
+export async function setupSwagger(app: Express) {
+  try {
+    await generateSwagger();
+
+    const swaggerPath = path.resolve(
+      process.cwd(),
+      "openapi.generated.json"
+    );
+
+    if (fs.existsSync(swaggerPath)) {
+      const swaggerDoc = JSON.parse(
+        fs.readFileSync(swaggerPath, "utf8")
+      );
+
+      app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+      console.log("Swagger running at /docs");
+    } else {
+      console.log("Swagger file missing");
+    }
+  } catch (err) {
+    console.error("Swagger setup failed", err);
+  }
+}
+
 async function main() {
   const app = express();
   app.use(express.json());
@@ -242,21 +266,8 @@ async function main() {
   const PORT = argv.port || 8000;
   process.env.STAGE = argv.stage;
 
-  try {
-    await generateSwagger()
-
-    const swaggerPath = path.resolve(process.cwd(), "openapi.generated.json");
-
-    if (fs.existsSync(swaggerPath)) {
-      const swaggerDoc = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
-      app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
-      console.log("Swagger running at /docs");
-    } else {
-      console.log("Swagger file missing");
-    }
-  } catch (err) {
-    console.error("Swagger setup failed", err);
-  }
+  // Setup Swagger
+  await setupSwagger(app);
 
 
   app.listen(PORT, () => {

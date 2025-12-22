@@ -1,8 +1,6 @@
 import path from "path";
 
-/* ======================
-   TYPES
-====================== */
+//TYPES
 
 type FieldInfo = {
   type?: string | null;
@@ -23,9 +21,7 @@ type SwaggerRoute = {
   requestSchemaData: SchemaInfo | null;
 };
 
-/* ======================
-   META READER
-====================== */
+//META READER
 
 function readMeta(
   field: any
@@ -106,9 +102,7 @@ function unwrapZod(field: any): {
   };
 }
 
-/* ======================
-   ZOD SCHEMA READER
-====================== */
+//ZOD SCHEMA READER
 
 function extractZodSchemaData(schema: any): SchemaInfo | null {
   try {
@@ -155,9 +149,7 @@ function extractZodSchemaData(schema: any): SchemaInfo | null {
   }
 }
 
-/* ======================
-   MAIN FUNCTION
-====================== */
+//MAIN FUNCTION
 
 export async function getSwaggerDetails(): Promise<SwaggerRoute[]> {
   const routes: SwaggerRoute[] = [];
@@ -199,9 +191,8 @@ export async function getSwaggerDetails(): Promise<SwaggerRoute[]> {
   return routes;
 }
 
-/* ======================
-   DEBUG RUN
-====================== */
+
+// DEBUG RUN
 
 if (require.main === module) {
   getSwaggerDetails().then((r) => {

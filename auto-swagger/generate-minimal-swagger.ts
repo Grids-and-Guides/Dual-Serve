@@ -111,7 +111,7 @@ export async function generateSwagger() {
       },
     };
 
-    // 🔐 ADD THIS PART
+    // ADD THIS PART
     if (r.authorizer === "custom-auth") {
       operation.security = [
         {
