@@ -10,15 +10,15 @@ const healthCheckTrigger = new Trigger({
   authorizer: ""
 });
 
-// const healthCheckUrlTrigger = new Trigger({
-//   type: "functionUrl",
-//   endpoint: "",
-//   method: "",
-//   responseType: "application/json",
-//   apiGatewayName: "",
-//   authorizer: "",
-//   cors: `{"allowOrigins": ["http://localhost:5500"], "allowMethods": ["GET","POST","PUT","DELETE","OPTION"]}`
-// });
+const healthCheckUrlTrigger = new Trigger({
+  type: "functionUrl",
+  endpoint: "",
+  method: "",
+  responseType: "application/json",
+  apiGatewayName: "",
+  authorizer: "",
+  cors: `{"allowOrigins": ["http://localhost:5500"], "allowMethods": ["GET","POST","PUT","DELETE","OPTION"]}`
+});
 
 const healthCheckEventbrigeTrigger = new Trigger({
   type: "scheduler",
@@ -27,7 +27,7 @@ const healthCheckEventbrigeTrigger = new Trigger({
   responseType: "application/json",
   apiGatewayName: "",
   authorizer: "",
-  scheduleExpression: "cron(*/2 * * * *)"
+  scheduleExpression: "rate(2 minute)"
 });
 
 export const healthCheckFunction = new FunctionConfig({
@@ -40,7 +40,7 @@ export const healthCheckFunction = new FunctionConfig({
   ),
   output: path.resolve(
     process.cwd(),
-    "dist/api/http/health-check/health-check.js"
+    "dist/api/http/health-check/index.js"
   ),
   memory: 256,
   concurrency: 1,
@@ -48,5 +48,5 @@ export const healthCheckFunction = new FunctionConfig({
   environmentVariable: {
     cors: "${env.cors}"
   },
-  triggers: [healthCheckTrigger, healthCheckEventbrigeTrigger]
+  triggers: [healthCheckTrigger, healthCheckUrlTrigger]
 });
