@@ -79,10 +79,10 @@ module.exports = function (plop) {
     const { functionName } = data; // e.g., 'getProduct'
 
     // The function variable will be 'getProductFunction'
-    const functionVariable = `${functionName}Function`;
+    const functionVariable = `${toCamelCase(functionName)}Function`;
 
     // The import path, using the new function name
-    const importStatement = `import { ${functionVariable} } from "../src/api/http/${functionName}/${functionName}.config";\n`;
+    const importStatement = `import { ${functionVariable} } from "@/api/http/${functionName}/${functionName}.config";\n`;
 
     // 1. Read the file content
     let fileContent = fs.readFileSync(configPath, "utf8");
@@ -229,3 +229,17 @@ module.exports = function (plop) {
     }
   });
 };
+
+// function toPascalCase(str) {
+//   return str
+//     .replace(/[_\- ]+/g, ' ')
+//     .replace(/[^\w\s]/g, '')
+//     .replace(/\s+(\w)/g, (_, c) => c.toUpperCase())
+//     .replace(/^\w/, c => c.toUpperCase());
+// }
+
+function toCamelCase(str) {
+  return str
+    .replace(/[_\- ]+(\w)/g, (_, c) => c.toUpperCase())
+    .replace(/^\w/, c => c.toLowerCase());
+}
