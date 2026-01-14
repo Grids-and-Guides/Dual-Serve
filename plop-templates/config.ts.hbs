@@ -1,6 +1,7 @@
 import path from "path";
 import { FunctionConfig, Trigger } from 'osff-dsl';
 
+{{#if (eq triggerType 'HTTP')}}
 const {{camelCase functionName}}Trigger = new Trigger({
   type: "http",
   endpoint: "{{endpoint}}",
@@ -9,6 +10,29 @@ const {{camelCase functionName}}Trigger = new Trigger({
   apiGatewayName: "my-serverless-app-${self.stage}",
   authorizer: ""
 });
+{{/if}}
+{{#if (eq triggerType 'FUNCTION_URL')}}
+const {{camelCase functionName}}Trigger = new Trigger({
+  type: "functionUrl",
+  endpoint: "",
+  method: "",
+  responseType: "application/json",
+  apiGatewayName: "",
+  authorizer: "",
+  cors: `{"allowOrigins": ["http://localhost:5500"], "allowMethods": ["GET","POST","PUT","DELETE","OPTION"]}`
+});
+{{/if}}
+{{#if (eq triggerType 'SCHEDULED')}}
+const {{camelCase functionName}}Trigger = new Trigger({
+  type: "scheduler",
+  endpoint: "",
+  method: "",
+  responseType: "application/json",
+  apiGatewayName: "",
+  authorizer: "",
+  scheduleExpression: "rate(2 minute)"
+});
+{{/if}}
 
 export const {{camelCase functionName}}Function = new FunctionConfig({
   name: "{{functionName}}-${self.stage}",

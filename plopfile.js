@@ -9,18 +9,18 @@ function getExistingApiConfigs(appConfigPath) {
   const configs = [];
   try {
     const fileContent = fs.readFileSync(appConfigPath, "utf8");
-    
+
     // 1. Extract function variables and their import paths
     const importRegex = /import\s+\{\s*(\w+)\s*\}\s+from\s+["'](\.\.\/src\/[^"']+)["'];/g;
     let match;
     const functionImports = {};
     while ((match = importRegex.exec(fileContent)) !== null) {
-       // Only track imports if they are used in the functions array
-       if (fileContent.includes(`functions: [`).includes(match[1])) {
-           functionImports[match[1]] = match[2];
-       }
+      // Only track imports if they are used in the functions array
+      if (fileContent.includes(`functions: [`).includes(match[1])) {
+        functionImports[match[1]] = match[2];
+      }
     }
-    
+
     const functionsArrayMatch = fileContent.match(/functions:\s*\[([^\]]+)\]/s);
     if (!functionsArrayMatch) return configs;
 
@@ -34,20 +34,20 @@ function getExistingApiConfigs(appConfigPath) {
       let importPath = functionImports[variable];
 
       if (!importPath) continue;
-      
+
       const appConfigDir = path.dirname(appConfigPath);
       let configFilePath = path.resolve(appConfigDir, `${importPath}.ts`);
 
       if (!fs.existsSync(configFilePath)) {
-          // Check alternative path if .ts suffix isn't needed
-          const alternativePath = path.resolve(appConfigDir, `${importPath}`);
-          if (fs.existsSync(alternativePath)) {
-            configFilePath = alternativePath;
-          } else {
-            continue;
-          }
-      } 
-      
+        // Check alternative path if .ts suffix isn't needed
+        const alternativePath = path.resolve(appConfigDir, `${importPath}`);
+        if (fs.existsSync(alternativePath)) {
+          configFilePath = alternativePath;
+        } else {
+          continue;
+        }
+      }
+
       const configContent = fs.readFileSync(configFilePath, "utf8");
 
       // 3. Extract endpoint and method
@@ -72,7 +72,7 @@ function getExistingApiConfigs(appConfigPath) {
 }
 
 module.exports = function (plop) {
-  
+
   // --- Register the Custom Action ---
   plop.setActionType("appendConfig", function (data, config, plop) {
     const configPath = path.resolve(process.cwd(), "bin/app-config.ts");
@@ -122,7 +122,12 @@ module.exports = function (plop) {
     return `Appended ${functionVariable} import and function to bin/app-config.ts`;
   });
   // --- End of Custom Action Registration ---
-  
+
+  // --- Register Helpers ---
+  plop.setHelper('eq', function (a, b) {
+    return a === b;
+  });
+
   plop.setGenerator("lambda-api", {
     description: "Scaffold a new Lambda API function",
 
@@ -167,43 +172,45 @@ module.exports = function (plop) {
         type: "list",
         name: "triggerType",
         message: "trigger type:",
-        choices: ["HTTP"]
+        choices: ["HTTP", "SCHEDULED", "FUNCTION_URL"]
       },
       {
         type: "input",
         name: "endpoint",
-        message: "API endpoint (ex: course):"
+        message: "API endpoint (ex: course):",
+        when: (answers) => answers.triggerType === 'HTTP'
       },
       {
         type: "list",
         name: "method",
         message: "HTTP Method:",
         choices: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+        when: (answers) => answers.triggerType === 'HTTP',
         validate: (method, answers) => {
-           const endpoint = String(answers.endpoint || "").trim();
-           const currentMethod = method.toUpperCase();
+          const endpoint = String(answers.endpoint || "").trim();
+          const currentMethod = method.toUpperCase();
 
-           if (!endpoint) {
-               // Should not happen, but a safe guard
-               return "Cannot validate: Endpoint is missing from answers."; 
-           }
+          if (!endpoint) {
+            // Should not happen, but a safe guard
+            return "Cannot validate: Endpoint is missing from answers.";
+          }
 
-           const configPath = path.resolve(process.cwd(), "bin/app-config.ts");
-           const existingConfigs = getExistingApiConfigs(configPath);
+          const configPath = path.resolve(process.cwd(), "bin/app-config.ts");
+          const existingConfigs = getExistingApiConfigs(configPath);
 
-           console.log("ex-config", existingConfigs)
-           
-           // Check if the combination of (endpoint, method) already exists
-           const conflict = existingConfigs.find(config => 
-             config.endpoint.toLowerCase() === endpoint.toLowerCase() && 
-             config.method.toUpperCase() === currentMethod
-           );
+          console.log("ex-config", existingConfigs)
 
-           if (conflict) {
-             return `API Conflict: The endpoint '${endpoint}' with method '${currentMethod}' already exists in ${conflict.file}.`;
-           }
+          // Check if the combination of (endpoint, method) already exists
+          const conflict = existingConfigs.find(config =>
+            config.endpoint.toLowerCase() === endpoint.toLowerCase() &&
+            config.method.toUpperCase() === currentMethod
+          );
 
-           return true;
+          if (conflict) {
+            return `API Conflict: The endpoint '${endpoint}' with method '${currentMethod}' already exists in ${conflict.file}.`;
+          }
+
+          return true;
         }
       }
     ],
