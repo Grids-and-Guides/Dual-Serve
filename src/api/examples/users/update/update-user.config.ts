@@ -1,5 +1,6 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
+import { updateUserBodySchema } from './update-user.dto';
 
 const updateUserTrigger = new Trigger({
     type: "http",
@@ -7,7 +8,8 @@ const updateUserTrigger = new Trigger({
     method: "PUT",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "custom-auth"
+    authorizer: "custom-auth",
+    requestSchema:updateUserBodySchema
   });
   
 export const updateUserFunction = new FunctionConfig({

@@ -1,27 +1,61 @@
 import { z } from "zod";
 
-// Request DTO (query parameters)
-export const getUsersRequestSchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .transform((val) => (val ? Math.max(1, parseInt(val)) : 1)),
-  limit: z
-    .string()
-    .optional()
-    .transform((val) => {
-      const parsed = val ? parseInt(val) : 10;
-      return Math.min(Math.max(1, parsed), 100);
-    }),
+/* ======================
+   ENUMS
+====================== */
+
+export enum UserSortBy {
+  NAME = "name",
+  LAST_NAME = "lastName",
+  EMAIL = "email",
+  MOBILE_NUMBER = "mobileNumber",
+  AGE = "age",
+  CREATED_AT = "createdAt",
+}
+
+export enum SortOrder {
+  ASC = "asc",
+  DESC = "desc",
+}
+
+/* ======================
+   REQUEST SCHEMA
+====================== */
+
+export const getListUsersRequestSchema = z.object({
+  page: z.coerce
+    .number()
+    .min(1)
+    .default(1)
+    .meta({ in: "query" }),
+
+  limit: z.coerce
+    .number()
+    .min(1)
+    .max(100)
+    .default(10)
+    .meta({ in: "query" }),
+
   search: z
     .string()
     .optional()
-    .transform((val) => val?.trim() || undefined),
+    .meta({ in: "query" }),
+
   sortBy: z
-    .enum(["name", "lastName", "email", "mobileNumber", "age", "createdAt"])
+    .nativeEnum(UserSortBy)
     .optional()
-    .default("createdAt"),
-  sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
+    .meta({ in: "query" }),
+
+  sortOrder: z
+    .nativeEnum(SortOrder)
+    .optional()
+    .meta({ in: "query" }),
 });
 
-export type GetUsersRequest = z.infer<typeof getUsersRequestSchema>;
+/* ======================
+   TYPE
+====================== */
+
+export type GetListUsersRequest = z.infer<
+  typeof getListUsersRequestSchema
+>;

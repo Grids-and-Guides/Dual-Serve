@@ -1,5 +1,6 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
+import { deleteUserRequestSchema } from './delete-user.dto';
 
 const deleteUserTrigger = new Trigger({
     type: "http",
@@ -7,7 +8,8 @@ const deleteUserTrigger = new Trigger({
     method: "DELETE",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "custom-auth"
+    authorizer: "custom-auth",
+    requestSchema:deleteUserRequestSchema
   });
   
 export const deleteUserFunction = new FunctionConfig({

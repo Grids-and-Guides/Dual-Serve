@@ -10,3 +10,6 @@ cdk.out
 
 # Others
 .DS_Store
+
+#swagger
+openapi.generated.json

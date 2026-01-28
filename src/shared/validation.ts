@@ -14,8 +14,8 @@ export function validateRequest<T>({
     return request;
   } catch (e) {
     if (e instanceof z.ZodError) {
-      console.error("Validation errors:", e.errors);
-      throw BadRequestError(e.errors[0]?.message || "Invalid request payload");
+      console.error("Validation errors:", e.issues);
+      throw BadRequestError(e.issues[0]?.message || "Invalid request payload");
     } else {
       console.error("Unknown error", e);
       throw new Error("Internal server error");

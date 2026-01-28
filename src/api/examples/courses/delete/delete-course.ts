@@ -6,16 +6,26 @@ import {
   BadRequestError,
   NotFoundError,
 } from "../../../../shared/response";
-import { deleteCourse } from '../../../../services/examples/course/delete/delete-course.service';
+import { deleteCourse } from "../../../../services/examples/course/delete/delete-course.service";
+import { validateRequest } from "../../../../shared/validation";
+import {
+  deleteCourseRequestSchema,
+  DeleteCourseRequest,
+} from "./delete-course.dto";
 
 export const handler = async (event: APIGatewayProxyEvent) => {
   try {
-    const courseId = event.pathParameters?.id;
+    // Validate path params
+    const request = validateRequest<DeleteCourseRequest>({
+      schema: deleteCourseRequestSchema,
+      data: {
+        id: event.pathParameters?.id,
+      },
+    });
 
-    if (!courseId) {
-      throw BadRequestError("Course id is required");
-    }
+    const courseId = request.id;
 
+    // ObjectId check
     if (!ObjectId.isValid(courseId)) {
       throw BadRequestError("Invalid course id format");
     }
@@ -27,7 +37,6 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     }
 
     return successResponse("Course deleted successfully");
-
   } catch (error: any) {
     console.error("Error in delete course handler:", error);
 

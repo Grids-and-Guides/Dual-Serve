@@ -1,5 +1,6 @@
 import { FunctionConfig, Trigger } from 'osff-dsl';
 import path from 'path';
+import { getListUsersRequestSchema } from './list-user.dto';
 
 const usersTrigger = new Trigger({
     type: "http",
@@ -7,7 +8,8 @@ const usersTrigger = new Trigger({
     method: "GET",
     responseType: "application/json",
     apiGatewayName: "my-serverless-app-${self.stage}",
-    authorizer: "custom-auth"
+    authorizer: "",
+    requestSchema:getListUsersRequestSchema
   });
   
 export const usersListFunction = new FunctionConfig({

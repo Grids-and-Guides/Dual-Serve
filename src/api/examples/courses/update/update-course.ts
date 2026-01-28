@@ -1,37 +1,48 @@
 import { Handler } from "aws-lambda";
-import { updateCourse } from "../../../../services/examples/course/update/update.course.service";
-import { successResponse, errorResponse, BadRequestError } from "../../../../shared/response";
 import { ObjectId } from "mongodb";
+
+import { updateCourse } from "../../../../services/examples/course/update/update.course.service";
+import {
+  successResponse,
+  errorResponse,
+  BadRequestError,
+} from "../../../../shared/response";
+import { validateRequest } from "../../../../shared/validation";
+import {
+  UpdateCourseRequest,
+  updateCourseSchema,
+} from "./update-course.dto";
 
 export const handler: Handler = async (event) => {
   try {
-    const courseId = event.pathParameters?.id;
+    // Safe body parse
+    const body =
+      typeof event.body === "string"
+        ? JSON.parse(event.body)
+        : event.body ?? {};
 
-    // Course id missing
-    if (!courseId) {
-      throw BadRequestError("Course id is required");
+    // Validate request
+    const params = validateRequest<UpdateCourseRequest>({
+      schema: updateCourseSchema,
+      data: {
+        id: event.pathParameters?.id,
+        ...body,
+      },
+    });
+
+    const { id, ...updateBody } = params;
+
+    // ObjectId check
+    if (!ObjectId.isValid(id)) {
+      throw BadRequestError("Invalid course id format");
     }
+    
+    const updatedCourse = await updateCourse(id, updateBody);
 
-    //Invalid ObjectId
-    if (!ObjectId.isValid(courseId)) {
-      throw BadRequestError("Invalid Course id format");
-    }
-
-    //Parse request body (new Course data)
-    if (!event.body) {
-      throw BadRequestError("Request body is required");
-    }
-
-    const courseData = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-
-    if (!courseData) {
-      throw BadRequestError("Invalid request body");
-    }
-
-    const updatedCourse = await updateCourse(courseId, courseData);
-
-    return successResponse("Course updated successfully", updatedCourse);
-
+    return successResponse(
+      "Course updated successfully",
+      updatedCourse
+    );
   } catch (error: any) {
     console.error("Error updating course:", error);
 

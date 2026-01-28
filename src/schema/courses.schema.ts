@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 export interface CourseDocument {
-  _id: ObjectId;
+  id: ObjectId;
   title: string;
   description: string;
   thumbnail: string;
