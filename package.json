@@ -41,7 +41,7 @@
     "mongodb": "latest",
     "nodemon": "^3.1.10",
     "swagger-ui-express": "^5.0.1",
-    "osff-dsl": "^1.0.7",
+    "osff-dsl": "^1.0.10",
     "yargs": "^18.0.0",
     "zod": "^4.2.1"
   }
